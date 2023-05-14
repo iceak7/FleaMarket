@@ -7,6 +7,8 @@ namespace FleaMarket.Infrastructure
         IMarketItemRepository MarketItems { get; }
         IInspirationItemRepository InspirationItems { get; }
         IItemCategoryRepository ItemCategories { get; }
+        IUserRepository UserRepository { get; }
+        IRolesRepository RolesRepository { get; }
         Task<int> SaveAsync();
     }
 }
