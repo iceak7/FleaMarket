@@ -1,6 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @model UserRolesViewModel
-@{
+
+@if(Model.Selected == null)
+{
+    <option selected value="">No role set</option>
+}
+else
+{
+    <option value="">No role set</option>
 }
 
 @foreach (var role in Model.Roles)

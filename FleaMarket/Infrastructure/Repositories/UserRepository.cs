@@ -20,6 +20,7 @@ namespace FleaMarket.Infrastructure.Repositories
 
         public async Task<string> GetRoleByUser(IdentityUser user)
         {
+            
             var roles = await _userManager.GetRolesAsync(user);
 
             return roles.FirstOrDefault();
@@ -32,18 +33,22 @@ namespace FleaMarket.Infrastructure.Repositories
             if(user == null) 
                 return false;
 
-
             var currentRole = await _userManager.GetRolesAsync(user);
 
             if(currentRole.Count > 0) 
                 await _userManager.RemoveFromRoleAsync(user, currentRole.FirstOrDefault());
 
-            var res = await _userManager.AddToRoleAsync(user, role);
+            if(role != null)
+            {
+                var res = await _userManager.AddToRoleAsync(user, role);
 
-            if (res.Succeeded)
-                return true;
-
-            return false;
+                if (res.Succeeded)
+                    return true;
+                else
+                    return false;
+            }
+              
+            return true;
         }
     }
 }

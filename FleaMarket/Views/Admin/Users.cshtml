@@ -1,7 +1,21 @@
 ﻿@model IEnumerable<UserViewModel>;
 
 @{
+    var success = TempData["SuccessMessage"];
+    var failure = TempData["ErrorMessage"];
 }
+
+@if( success != null)
+{
+    @await Html.PartialAsync("PartialViews/Messages/_SuccessMessage", success.ToString())
+}
+
+else if( failure != null)
+{
+    @await Html.PartialAsync("PartialViews/Messages/_ErrorMessage", failure.ToString())
+}
+
+ @ViewData["SuccessMessage"]
 
 <table class="table">
     <thead>
@@ -36,11 +50,8 @@
 </table>
 
 <script>
-
     function userRoleChanged(userId){
-        console.log("inside");
         $("#submitRoleChange-"+userId).prop("disabled", false);
-
     }
 
     function onUpdateRole(userId){
