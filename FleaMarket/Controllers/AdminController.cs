@@ -1,4 +1,5 @@
 ﻿using FleaMarket.Infrastructure;
+using FleaMarket.Models;
 using FleaMarket.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,8 +62,52 @@ namespace FleaMarket.Controllers
                 TempData["ErrorMessage"] = "Error seting role";
             }
 
-
             return RedirectToAction("Users");
+
+        }
+
+        public async Task<IActionResult> Categories()
+        {
+            var categories = await _uow.ItemCategories.GetAll();
+
+            return View(categories);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCategory(ItemCategory category)
+        {
+            if (ModelState.IsValid)
+            {
+                await _uow.ItemCategories.Create(category);
+                await _uow.SaveAsync();
+            }
+            else
+            {
+                TempData["ValidationError"] = ModelState.Values.SelectMany(x => x.Errors.Select(e => e.ErrorMessage)).Aggregate("", (current, s) => current + (s + " "));
+            }
+
+
+            return RedirectToAction("Categories");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            if(id != 0)
+            {
+                var item = await _uow.ItemCategories.GetById(id);
+                if (item != null)
+                {
+                    await _uow.ItemCategories.Delete(item);
+                    await _uow.SaveAsync();
+
+                    TempData["SuccessMessage"] = "Successfully deleted category.";
+
+                    return RedirectToAction("Categories");
+                }
+            }
+            TempData["SuccessMessage"] = "Successfully deleted category.";
+            return RedirectToAction("Categories");
 
         }
 

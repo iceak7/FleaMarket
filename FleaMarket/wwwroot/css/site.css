@@ -16,3 +16,14 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+.table-cell-form{
+    display:flex;
+    justify-content:center;
+}
+
+.table-cell-form-button{
+    width:auto;
+
+}

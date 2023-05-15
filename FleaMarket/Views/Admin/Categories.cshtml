@@ -1,0 +1,59 @@
+﻿@model IEnumerable<ItemCategory>
+@{
+    var validationError = TempData["ValidationError"];
+}
+
+<div class="row">
+    <div class="col">
+        <h3>Categories</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Name
+                    </th>
+                    <th scope="col">
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td>
+                            <form asp-controller="Admin" asp-action="DeleteCategory" class="table-cell-form">
+                            <input type="hidden" name="id" value="@item.Id"/>
+                                <button type="submit" onclick="return confirm('Confirm deleting of category')" class="btn btn-outline-danger table-cell-form-button">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                        </form>
+                    </td>
+                </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <h3>Add New Category</h3>
+            <form asp-controller="Admin" asp-action="AddCategory" method="post">
+                <label for="nameInput" class="form-label">Name</label>
+                @if (validationError != null)
+                {
+                    <input type="text" name="Name" id="nameInput" class="form-control is-invalid" />
+                    <div class="invalid-feedback">
+                        @validationError
+                    </div>
+                }
+                else
+                {
+                    <input type="text" name="Name" id="nameInput" class="form-control" />
+                }
+                <button type="submit" class="btn btn-primary mt-3">Add Category</button>
+            </form>
+        </div>
+</div>
