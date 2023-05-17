@@ -20,19 +20,24 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                <tr>
-                    <td>
-                        @item.Name
-                    </td>
-                    <td>
-                            <form asp-controller="Admin" asp-action="DeleteCategory" class="table-cell-form">
-                            <input type="hidden" name="id" value="@item.Id"/>
-                                <button type="submit" onclick="return confirm('Confirm deleting of category')" class="btn btn-outline-danger table-cell-form-button">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                        </form>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td class="shrink">
+                            <ul class="table-buttons">
+                                <li>
+                                    <form asp-controller="Admin" asp-action="DeleteCategory" class="table-cell-form">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" onclick="return confirm('Confirm deleting of category')" class="btn btn-outline-danger table-cell-form-button">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+
+                        </td>
+                    </tr>
                 }
 
             </tbody>

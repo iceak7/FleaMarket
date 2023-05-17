@@ -1,0 +1,54 @@
+﻿@model IEnumerable<MarketItem>
+
+<div class="row">
+    <div class="col">
+        <h3>Market items</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Title
+                    </th>
+                    <th scope="col">
+                        Price
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Title
+                        </td>
+                        <td>
+                            @item.Price
+                        </td>
+                        <td class="shrink">
+                                <ul class="table-buttons">
+                                    <li> <a asp-controller="Admin" asp-action="AddOrEditItem" asp-route-id="@item.Id" class="btn btn-outline-warning"><i class="far fa-edit"></i></a></li>
+                                    <li>
+                                        <span>
+                                            <form asp-controller="Admin" asp-action="DeleteItem" class="table-cell-form">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="submit" onclick="return confirm('Confirm deleting of item')" class="btn btn-outline-danger table-cell-form-button">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </span>
+                                    </li>
+                                </ul>                       
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <a asp-controller="Admin" asp-action="AddOrEditItem" class="btn btn-outline-success">Add an item <i class="fas fa-plus"></i></i></a>
+    </div>
+</div>

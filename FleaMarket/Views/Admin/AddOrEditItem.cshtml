@@ -1,0 +1,32 @@
+﻿@model ItemViewModel
+
+<form class="row g-3" asp-controller="Admin" asp-action="AddOrEditItem">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3 col-md-9">
+        <label asp-for="Title" class="form-label">Title</label>
+        <input type="text" asp-for="Title" class="form-control" >
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="mb-3 col-md-3">
+        <label asp-for="Price" class="form-label">Price(optional)</label>
+        <div class="input-group">
+            <input  class="form-control" asp-for="Price">
+            <span class="input-group-text">kr</span>
+        </div>
+        <span asp-validation-for="Price" class="text-danger"></span>
+
+    </div>
+    <div class="mb-3 col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea class="form-control" asp-for="Description" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    @if(Model.Id != null)
+    {
+        <button type="submit" class="btn btn-outline-success">Update item <i class="fas fa-save"></i></button>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-outline-success">Add item <i class="fas fa-plus"></i></button>
+    }
+</form>

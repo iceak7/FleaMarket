@@ -18,7 +18,7 @@ body {
 }
 
 
-.table-cell-form{
+/*.table-cell-form{
     display:flex;
     justify-content:center;
 }
@@ -26,4 +26,25 @@ body {
 .table-cell-form-button{
     width:auto;
 
+}*/
+
+.table-buttons {
+    display: flex;
+    width: auto;
+    list-style: none;
+    margin: 0;
+    padding: 0 2px 0px 2px;
+}
+
+.table-buttons li{
+    padding:0 2px 0px 2px;
+}
+
+td.shrink {
+    white-space: nowrap;
+    width:1px;
+}
+
+td{
+    vertical-align:middle;
 }

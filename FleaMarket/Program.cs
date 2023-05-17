@@ -3,6 +3,7 @@ using FleaMarket.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,12 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => {
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("sv-SE");
+    options.RequestCultureProviders.Clear();
+}
+    );
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

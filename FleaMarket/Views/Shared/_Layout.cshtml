@@ -37,6 +37,8 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @await Html.PartialAsync("PartialViews/Messages/_SuccessMessage")
+            @await Html.PartialAsync("PartialViews/Messages/_ErrorMessage")
             @RenderBody()
         </main>
     </div>

@@ -1,21 +1,6 @@
 ﻿@model IEnumerable<UserViewModel>;
 
-@{
-    var success = TempData["SuccessMessage"];
-    var failure = TempData["ErrorMessage"];
-}
 
-@if( success != null)
-{
-    @await Html.PartialAsync("PartialViews/Messages/_SuccessMessage", success.ToString())
-}
-
-else if( failure != null)
-{
-    @await Html.PartialAsync("PartialViews/Messages/_ErrorMessage", failure.ToString())
-}
-
- @ViewData["SuccessMessage"]
 
 <table class="table">
     <thead>
@@ -40,8 +25,12 @@ else if( failure != null)
                         </select>
                     </form>
                 </td>
-                <td>
-                    <button type="button" disabled id="submitRoleChange-@item.Id" class="btn btn-outline-primary" onclick="onUpdateRole('@item.Id')"><i class="fas fa-save"></i></button>
+                <td class="shrink">
+                    <ul class="table-buttons">
+                        <li>
+                            <button type="button" disabled id="submitRoleChange-@item.Id" class="btn btn-outline-primary" onclick="onUpdateRole('@item.Id')"><i class="fas fa-save"></i></button>
+                        </li>
+                    </ul>                   
                 </td>
             </tr>
         }
@@ -49,12 +38,14 @@ else if( failure != null)
     </tbody>
 </table>
 
-<script>
-    function userRoleChanged(userId){
-        $("#submitRoleChange-"+userId).prop("disabled", false);
-    }
+@section scripts{
+    <script>
+        function userRoleChanged(userId) {
+            $("#submitRoleChange-" + userId).prop("disabled", false);
+        }
 
-    function onUpdateRole(userId){
-        $("#userRoleForm-" + userId).submit();
-    }
-</script>
+        function onUpdateRole(userId) {
+            $("#userRoleForm-" + userId).submit();
+        }
+    </script>
+}

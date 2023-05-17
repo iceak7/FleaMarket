@@ -12,29 +12,29 @@ namespace FleaMarket.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<T> Create(T entity)
+        public virtual async Task<T> Create(T entity)
         {
             var en = await _context.Set<T>().AddAsync(entity);
             return en.Entity;
         }
 
-        public async Task<bool> Delete(T entity)
+        public virtual async Task<bool> Delete(T entity)
         {
             _context.Set<T>().Remove(entity);
             return true;
         }
 
-        public async Task<T?> Find(Expression<Func<T, bool>> predicate)
+        public virtual async Task<T?> Find(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().FindAsync(predicate);
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public virtual async Task<IEnumerable<T>> GetAll()
         {
             return await _context.Set<T>().ToListAsync();
         }
 
-        public async Task<T?> GetById(int id)
+        public virtual async Task<T?> GetById(int id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
