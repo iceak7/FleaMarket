@@ -1,8 +1,10 @@
 ﻿using FleaMarket.Infrastructure;
 using FleaMarket.Models;
+using FleaMarket.Models.Items;
 using FleaMarket.Models.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 
 namespace FleaMarket.Controllers
 {
@@ -10,9 +12,11 @@ namespace FleaMarket.Controllers
     public class AdminController : Controller
     {
         private readonly IUnitOfWork _uow;
-        public AdminController(IUnitOfWork uow)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public AdminController(IUnitOfWork uow, IWebHostEnvironment webHostEnvironment)
         {
             _uow = uow;
+            _webHostEnvironment = webHostEnvironment;
         }
         public async Task<IActionResult> Index()
         {
@@ -125,12 +129,15 @@ namespace FleaMarket.Controllers
             {
                 var item = new ItemViewModel()
                 {
-                    Categories = new List<ItemCategory>(),
+                    Categories = new List<int>(),
                     Images = new List<Image>(),
                     InspirationItems = new List<InspirationItem>()
                 };
 
-                return View(new ItemViewModel());
+                var categories =  await _uow.ItemCategories.GetAll();
+                item.CategoriesToChoose = categories.Select(x=>new SelectItem() { label = x.Name, value=x.Id, selected=false }).ToList();
+
+                return View(item);
             }
             else
             {
@@ -138,15 +145,23 @@ namespace FleaMarket.Controllers
 
                 if(item != null)
                 {
+                    var categories = await _uow.ItemCategories.GetAll();
+
                     return View(new ItemViewModel()
                     {
                         Id = id.Value,
-                        Categories = item.Categories.ToList(),
+                        CategoriesToChoose = categories.Select(x => new SelectItem()
+                        {
+                            label = x.Name,
+                            value = x.Id,
+                            selected= item.Categories.Contains(x) ? true : false 
+                        }).ToList(),
                         Images = item.Images.ToList(),
                         Description = item.Description,
                         InspirationItems = item.InspirationItems.ToList(),
                         Price = item.Price,
-                        Title = item.Title
+                        Title = item.Title,
+                        Status = item.Status
                     });
                 }
                 return NotFound();
@@ -167,6 +182,9 @@ namespace FleaMarket.Controllers
                         itemToUpdate.Price = item.Price;
                         itemToUpdate.Title = item.Title;
                         itemToUpdate.Description = item.Description;
+                        itemToUpdate.Status = item.Status;
+
+                        itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
 
                         await _uow.SaveAsync();
 
@@ -181,8 +199,10 @@ namespace FleaMarket.Controllers
                     {
                         Description = item.Description,
                         Title = item.Title,
-                        Price = item.Price
-                    };
+                        Price = item.Price,
+                        Status = item.Status,
+                        Categories = await _uow.ItemCategories.GetByIds(item.Categories)
+                };
 
                     var res = await _uow.MarketItems.Create(marketItem);
                     await _uow.SaveAsync();
@@ -209,11 +229,82 @@ namespace FleaMarket.Controllers
 
                     TempData["SuccessMessage"] = "Successfully deleted market item.";
 
-                    return RedirectToAction("Categories");
+                    return RedirectToAction("MarketItems");
                 }
             }
             TempData["ErrorMessage"] = "Unable to delete market item.";
             return RedirectToAction("MarketItems");
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> AddImage(IFormFile image)
+        {
+            if(image != null)
+            {
+                string folder = "images/uploads/";
+
+                var url = await UploadImage(folder, image);
+
+                var createdImage = await _uow.ImageRepository.Create(new Image()
+                {
+                    Url = url
+                });
+                await _uow.SaveAsync();
+
+                return new JsonResult(new { Success = true, createdImage.Url, createdImage.Id});
+            }
+
+            return new JsonResult(new { Success = false});
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> DeleteImage(int? id)
+        {
+            if(id != null)
+            {
+                var imageToDelete = await _uow.ImageRepository.GetById(id.Value);
+                if(imageToDelete != null)
+                {
+                    var path = imageToDelete.Url;
+
+                    var isDeleted = await _uow.ImageRepository.Delete(imageToDelete);
+
+                    if (isDeleted)
+                    {
+                        var res = DeleteImage(path);
+                        return new JsonResult(new { Success = true });
+                    }
+                }
+            }
+
+            return Json(new {Success = false });
+        }
+
+        private async Task<string> UploadImage(string folderPath, IFormFile file)
+        {
+            folderPath += Guid.NewGuid().ToString() + "_" + file.FileName;
+
+            string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folderPath);
+
+            await file.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+
+            return "/" + folderPath;
+        }
+
+        private bool DeleteImage(string path)
+        {
+            string fullPath = Path.Combine(_webHostEnvironment.WebRootPath + path);
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                var file = System.IO.File.GetAttributes(fullPath);
+
+                System.IO.File.SetAttributes(fullPath, FileAttributes.Normal);
+                System.IO.File.Delete(fullPath);
+                return true;
+            };
+
+            return false;
         }
 
 

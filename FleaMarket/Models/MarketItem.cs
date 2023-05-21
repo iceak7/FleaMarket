@@ -15,10 +15,18 @@ namespace FleaMarket.Models
         [Precision(18, 2)]
         public decimal? Price { get; set; }
 
+        public ItemStatus Status { get; set; }
 
 
         public ICollection<ItemCategory> Categories { get; set; }
         public ICollection<Image> Images { get; set; }
         public ICollection<InspirationItem> InspirationItems { get; set; }
+    }
+
+    public enum ItemStatus
+    {
+        Unpublished, 
+        Published,
+        Sold
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using FleaMarket.Models;
+using System.Linq.Expressions;
 
 namespace FleaMarket.Infrastructure.Repositories
 {
@@ -9,5 +10,6 @@ namespace FleaMarket.Infrastructure.Repositories
         Task<T> Find(Expression<Func<T, bool>> predicate);
         Task<T> Create(T entity);
         Task<bool> Delete(T entity);
+
     }
 }

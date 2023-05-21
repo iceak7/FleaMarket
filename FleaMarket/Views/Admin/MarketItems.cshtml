@@ -12,6 +12,9 @@
                     <th scope="col">
                         Price
                     </th>
+                    <th scope="col">
+                        Status
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -24,6 +27,9 @@
                         </td>
                         <td>
                             @item.Price
+                        </td>
+                        <td>
+                            @item.Status
                         </td>
                         <td class="shrink">
                                 <ul class="table-buttons">
@@ -49,6 +55,6 @@
 </div>
 <div class="row">
     <div class="col">
-        <a asp-controller="Admin" asp-action="AddOrEditItem" class="btn btn-outline-success">Add an item <i class="fas fa-plus"></i></i></a>
+        <a asp-controller="Admin" asp-action="AddOrEditItem" class="btn btn-success">Add an item <i class="fas fa-plus"></i></i></a>
     </div>
 </div>
