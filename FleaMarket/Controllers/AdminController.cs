@@ -232,6 +232,7 @@ namespace FleaMarket.Controllers
                             itemToUpdate.Status = item.Status;
 
                             itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
+                            itemToUpdate.Images = item.Images;
 
                             await _uow.SaveAsync();
 
@@ -248,6 +249,7 @@ namespace FleaMarket.Controllers
                             Title = item.Title,
                             Price = item.Price,
                             Status = item.Status,
+                            Images = item.Images,
                             Categories = await _uow.ItemCategories.GetByIds(item.Categories)
                         };
 
@@ -306,17 +308,24 @@ namespace FleaMarket.Controllers
             {
                 if (image != null)
                 {
-                    string folder = "images/uploads/";
+                    var extension = Path.GetExtension(image.FileName).ToUpper();
+                    var allowedExtensions = new string[] { ".JPG", ".JPEG", ".PNG", ".HEIC" };
 
-                    var url = await UploadImage(folder, image);
-
-                    var createdImage = await _uow.ImageRepository.Create(new Image()
+                    if (image.Length < 5*1024*1024 && allowedExtensions.Contains(extension))
                     {
-                        Url = url
-                    });
-                    await _uow.SaveAsync();
+                        string folder = "images/uploads/";
 
-                    return new JsonResult(new { Success = true, createdImage.Url, createdImage.Id });
+                        var url = await UploadImage(folder, image);
+
+                        var createdImage = await _uow.ImageRepository.Create(new Image()
+                        {
+                            Url = url
+                        });
+                        await _uow.SaveAsync();
+
+                        return new JsonResult(new { Success = true, createdImage.Url, createdImage.Id });
+                    }
+
                 }
 
                 return new JsonResult(new { Success = false });
