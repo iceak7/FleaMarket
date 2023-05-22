@@ -81,6 +81,7 @@
                 choices: list
             });
 
+            var imagesCount = 0;
 
             $('#imageInput').change(function(e){
                 var image = $('#imageInput')[0].files[0];
@@ -104,12 +105,15 @@
                         if(data.success == true){
                             $('#imageGallery').append(`<div id='image-gallery-container-${data.id}' class='image-gallery-container'>
                                                   <span onclick='deleteImage(${data.id})' class="close" ><i class="far fa-times-circle"></i></span>
+                                                  <input type="hidden" name="Images[${imagesCount}].Url" value=${data.url} />
+                                                  <input type="hidden" name="Images[${imagesCount}].Id" value=${data.id} />
                                 <img src='${data.url}'>
                              </div>`)
+                             imagesCount++;
                         }
                     },
                     error: function(data){
-                        console.log(error);
+                        insertErrorMessage("Error when uploading image.");
                     }
                 });
             })
@@ -117,6 +121,7 @@
 
         function deleteImage(id){
             $("#image-gallery-container-"+id).remove();
+            updateImagesIndex();
 
            
 
@@ -132,6 +137,22 @@
                 error: function (data) {
                     console.log(error);
                 }
+            });
+        }
+
+        function updateImagesIndex(){
+            $("#imageGallery").children().each((index, element) => {
+                var elements = $(element).children('input');
+
+                elements.each(function(){
+                    var prop = $(this).attr('name').substring($(this).attr('name').indexOf('.') + 1);
+
+                    var newName = `Images[${index}].` + prop;
+                    $(this).attr('name', newName);
+
+                    imagesCount = index + 1;
+                })
+
             });
         }
     </script>

@@ -4,7 +4,7 @@
 }
 
 <div class="row">
-    <div class="col">
+    <div class="col-md-6">
         <h3>Categories</h3>
         <table class="table">
             <thead>
@@ -20,12 +20,15 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>
+                    <tr id="cat-@item.Id">
+                        <td contenteditable="true" oninput="onCategoryChange('@item.Id')">
                             @item.Name
                         </td>
                         <td class="shrink">
                             <ul class="table-buttons">
+                                <li>
+                                    <button type="button" disabled id="save-category-edit-@item.Id" class="btn btn-outline-primary" onclick="onCategorySave('@item.Id')"><i class="fas fa-save"></i></button>
+                                </li>
                                 <li>
                                     <form asp-controller="Admin" asp-action="DeleteCategory" class="table-cell-form">
                                         <input type="hidden" name="id" value="@item.Id" />
@@ -43,7 +46,7 @@
             </tbody>
         </table>
     </div>
-    <div class="col">
+    <div class="col-md-6">
         <h3>Add New Category</h3>
             <form asp-controller="Admin" asp-action="AddCategory" method="post">
                 <label for="nameInput" class="form-label">Name</label>
@@ -62,3 +65,36 @@
             </form>
         </div>
 </div>
+
+@section scripts{
+    <script>
+        function onCategoryChange(id) {
+            $('#save-category-edit-' + id).prop("disabled", false);
+        }
+
+        function onCategorySave(id){
+            var name = $("#cat-" + id).children().first().text().trim();
+
+            var category = new FormData();
+            category.append('Name', name)
+            category.append('Id', id)
+
+            $.ajax({
+                method: "post",
+                url: "/Admin/EditCategory/" + id,
+                processData: false,
+                contentType: false,
+                cache: false,
+                data: category,
+                success: function (data) {
+                    $('#save-category-edit-' + id).prop("disabled", true);
+                    insertSuccessMessage(data.message);
+                },
+                error: function (data) {
+                    insertErrorMessage(data.message);
+                }
+            });
+        }
+    </script>
+
+}

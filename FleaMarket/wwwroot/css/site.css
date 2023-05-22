@@ -17,16 +17,10 @@ body {
   margin-bottom: 60px;
 }
 
-
-/*.table-cell-form{
-    display:flex;
-    justify-content:center;
+.admin-menu{
+    float:right;
 }
 
-.table-cell-form-button{
-    width:auto;
-
-}*/
 
 .table-buttons {
     display: flex;

@@ -80,41 +80,86 @@ namespace FleaMarket.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCategory(ItemCategory category)
         {
-            if (ModelState.IsValid)
+            try
             {
-                await _uow.ItemCategories.Create(category);
-                await _uow.SaveAsync();
-            }
-            else
-            {
-                TempData["ValidationError"] = ModelState.Values.SelectMany(x => x.Errors.Select(e => e.ErrorMessage)).Aggregate("", (current, s) => current + (s + " "));
-            }
+                if (ModelState.IsValid)
+                {
+                    await _uow.ItemCategories.Create(category);
+                    await _uow.SaveAsync();
+                }
+                else
+                {
+                    TempData["ValidationError"] = ModelState.Values.SelectMany(x => x.Errors.Select(e => e.ErrorMessage)).Aggregate("", (current, s) => current + (s + " "));
+                }
 
 
-            return RedirectToAction("Categories");
+                return RedirectToAction("Categories");
+            }
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error when adding category.";
+
+                return RedirectToAction("Categories");
+            }
+
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            if(id != 0)
+            try
             {
-                var item = await _uow.ItemCategories.GetById(id);
-                if (item != null)
+                if (id != 0)
                 {
-                    await _uow.ItemCategories.Delete(item);
-                    await _uow.SaveAsync();
+                    var item = await _uow.ItemCategories.GetById(id);
+                    if (item != null)
+                    {
+                        await _uow.ItemCategories.Delete(item);
+                        await _uow.SaveAsync();
 
-                    TempData["SuccessMessage"] = "Successfully deleted category.";
+                        TempData["SuccessMessage"] = "Successfully deleted category.";
 
-                    return RedirectToAction("Categories");
+                        return RedirectToAction("Categories");
+                    }
                 }
+                TempData["ErrorMessage"] = "Unable to delete category.";
+                return RedirectToAction("Categories");
             }
-            TempData["ErrorMessage"] = "Unable to delete category.";
-            return RedirectToAction("Categories");
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error when deleting category.";
+                return RedirectToAction("Categories");
+            }
+               
         }
 
-        [HttpGet]
+        [HttpPost]
+        public async Task<IActionResult> EditCategory(int? id, ItemCategory item)
+        {
+            if (ModelState.IsValid)
+            {
+                if (id != null)
+                {
+                    var cat = await _uow.ItemCategories.GetById(id.Value);
+
+                    if(cat != null)
+                    {
+                        cat.Name = item.Name;
+                        await _uow.SaveAsync();
+
+                        return Json( new {Success = true, Message = "Successfully updated category" } );
+                    }
+                }
+
+                return Json(new { Success = false, Message = "Error when updating category" });
+            }
+
+            var mes = "Error when updating category. "+ ModelState.Values.SelectMany(x => x.Errors.Select(e => e.ErrorMessage)).Aggregate("", (current, s) => current + (s + " ")); ;
+            return Json(new { Success = false, Message = mes });
+
+        }
+
+        [HttpGet] 
         public async Task<IActionResult> MarketItems()
         {
             var items = await _uow.MarketItems.GetAll();
@@ -171,113 +216,147 @@ namespace FleaMarket.Controllers
         [HttpPost]
         public async Task<IActionResult> AddOrEditItem(ItemViewModel item)
         {
-            if(ModelState.IsValid)
+            try
             {
-                if(item.Id != null)
+                if (ModelState.IsValid)
                 {
-                    var itemToUpdate = await _uow.MarketItems.GetById(item.Id.Value);
-
-                    if (itemToUpdate != null)
+                    if (item.Id != null)
                     {
-                        itemToUpdate.Price = item.Price;
-                        itemToUpdate.Title = item.Title;
-                        itemToUpdate.Description = item.Description;
-                        itemToUpdate.Status = item.Status;
+                        var itemToUpdate = await _uow.MarketItems.GetById(item.Id.Value);
 
-                        itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
+                        if (itemToUpdate != null)
+                        {
+                            itemToUpdate.Price = item.Price;
+                            itemToUpdate.Title = item.Title;
+                            itemToUpdate.Description = item.Description;
+                            itemToUpdate.Status = item.Status;
 
+                            itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
+
+                            await _uow.SaveAsync();
+
+                            TempData["SuccessMessage"] = "Successfully edited market item.";
+
+                            return RedirectToAction("MarketItems");
+                        }
+                    }
+                    else
+                    {
+                        MarketItem marketItem = new MarketItem()
+                        {
+                            Description = item.Description,
+                            Title = item.Title,
+                            Price = item.Price,
+                            Status = item.Status,
+                            Categories = await _uow.ItemCategories.GetByIds(item.Categories)
+                        };
+
+                        var res = await _uow.MarketItems.Create(marketItem);
                         await _uow.SaveAsync();
 
-                        TempData["SuccessMessage"] = "Successfully edited market item.";
+                        TempData["SuccessMessage"] = "Successfully added market item.";
 
                         return RedirectToAction("MarketItems");
                     }
                 }
-                else
-                {
-                    MarketItem marketItem = new MarketItem()
-                    {
-                        Description = item.Description,
-                        Title = item.Title,
-                        Price = item.Price,
-                        Status = item.Status,
-                        Categories = await _uow.ItemCategories.GetByIds(item.Categories)
-                };
 
-                    var res = await _uow.MarketItems.Create(marketItem);
-                    await _uow.SaveAsync();
-
-                    TempData["SuccessMessage"] = "Successfully added market item.";
-
-                    return RedirectToAction("MarketItems");
-                }
+                return View(item);
+            }
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred.";
+                return View(item);
             }
 
-            return View(item);
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteItem(int id)
         {
-            if (id != 0)
+            try
             {
-                var item = await _uow.MarketItems.GetById(id);
-                if (item != null)
+                if (id != 0)
                 {
-                    await _uow.MarketItems.Delete(item);
-                    await _uow.SaveAsync();
+                    var item = await _uow.MarketItems.GetById(id);
+                    if (item != null)
+                    {
+                        await _uow.MarketItems.Delete(item);
+                        await _uow.SaveAsync();
 
-                    TempData["SuccessMessage"] = "Successfully deleted market item.";
+                        TempData["SuccessMessage"] = "Successfully deleted market item.";
 
-                    return RedirectToAction("MarketItems");
+                        return RedirectToAction("MarketItems");
+                    }
                 }
+                TempData["ErrorMessage"] = "Unable to delete market item.";
+                return RedirectToAction("MarketItems");
             }
-            TempData["ErrorMessage"] = "Unable to delete market item.";
-            return RedirectToAction("MarketItems");
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error when deleting market item.";
+                return RedirectToAction("MarketItems");
+            }
+
         }
 
         [HttpPost]
         public async Task<JsonResult> AddImage(IFormFile image)
         {
-            if(image != null)
+            try
             {
-                string folder = "images/uploads/";
-
-                var url = await UploadImage(folder, image);
-
-                var createdImage = await _uow.ImageRepository.Create(new Image()
+                if (image != null)
                 {
-                    Url = url
-                });
-                await _uow.SaveAsync();
+                    string folder = "images/uploads/";
 
-                return new JsonResult(new { Success = true, createdImage.Url, createdImage.Id});
+                    var url = await UploadImage(folder, image);
+
+                    var createdImage = await _uow.ImageRepository.Create(new Image()
+                    {
+                        Url = url
+                    });
+                    await _uow.SaveAsync();
+
+                    return new JsonResult(new { Success = true, createdImage.Url, createdImage.Id });
+                }
+
+                return new JsonResult(new { Success = false });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { Success = false });
             }
 
-            return new JsonResult(new { Success = false});
         }
 
         [HttpPost]
         public async Task<JsonResult> DeleteImage(int? id)
         {
-            if(id != null)
+            try
             {
-                var imageToDelete = await _uow.ImageRepository.GetById(id.Value);
-                if(imageToDelete != null)
+                if (id != null)
                 {
-                    var path = imageToDelete.Url;
-
-                    var isDeleted = await _uow.ImageRepository.Delete(imageToDelete);
-
-                    if (isDeleted)
+                    var imageToDelete = await _uow.ImageRepository.GetById(id.Value);
+                    if (imageToDelete != null)
                     {
-                        var res = DeleteImage(path);
-                        return new JsonResult(new { Success = true });
+                        var path = imageToDelete.Url;
+
+                        var isDeleted = await _uow.ImageRepository.Delete(imageToDelete);
+
+                        if (isDeleted)
+                        {
+                            var res = DeleteImage(path);
+                            return new JsonResult(new { Success = true });
+                        }
                     }
                 }
+
+                return Json(new { Success = false });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Success = false });
             }
 
-            return Json(new {Success = false });
         }
 
         private async Task<string> UploadImage(string folderPath, IFormFile file)
@@ -297,9 +376,6 @@ namespace FleaMarket.Controllers
 
             if (System.IO.File.Exists(fullPath))
             {
-                var file = System.IO.File.GetAttributes(fullPath);
-
-                System.IO.File.SetAttributes(fullPath, FileAttributes.Normal);
                 System.IO.File.Delete(fullPath);
                 return true;
             };
