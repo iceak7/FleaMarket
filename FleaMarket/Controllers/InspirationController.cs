@@ -23,7 +23,9 @@ namespace FleaMarket.Controllers
             {
                 return NotFound();
             }
-             return RedirectToAction("Index");
+
+            var item = await _uow.InspirationItems.GetById(id.Value);
+             return View(item);
         }
     }
 }

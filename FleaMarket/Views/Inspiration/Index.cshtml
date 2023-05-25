@@ -5,7 +5,9 @@
     @foreach (var item in Model)
     {
         <div class="grid-item">
-            <img src="@item.Image.Url">
+            <a asp-controller="Inspiration" asp-action="Item" asp-route-id="@item.Id">
+                <img src="@item.Image.Url">
+            </a>
         </div>
     }
     </div>
