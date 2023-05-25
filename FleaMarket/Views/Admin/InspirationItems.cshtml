@@ -1,0 +1,40 @@
+﻿@model IEnumerable<InspirationItem>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 inspiration-items-gallery g-2 mb-3">
+        @foreach (var item in Model)
+    {
+        <div class="col">
+            <div class="inspiration-item">
+                <div class="inspiration-item-grid-image-container">
+                    <img src="@item.Image.Url" class="inspiration-item-image" alt="Card Image">
+                </div>
+                <div class="inspiration-body">
+                    <h5 class="inspiration-title">@(item.Title ?? "No Title" ) @item.Title</h5>
+                    <div class="inspiration-text">@(item.Description ?? "No descrpition")</div>
+                </div>
+                <div class="inspiration-footer">
+                    <ul class="table-buttons">
+                        <li>
+                            <a asp-controller="Admin" asp-action="AddOrEditInspirationItem" asp-route-id="@item.Id" class="btn btn-warning"><i class="far fa-edit"></i></a>
+                        </li>
+                        <li>
+                            <span>
+                                <form asp-controller="Admin" asp-action="DeleteInspirationItem" class="table-cell-form">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" onclick="return confirm('Confirm deleting of item')" class="btn btn-danger table-cell-form-button">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        }
+</div>
+<div class="row">
+    <div class="col">
+        <a asp-controller="Admin" asp-action="AddOrEditInspirationItem" class="btn btn-success">Add an inspiration item <i class="fas fa-plus"></i></i></a>
+    </div>
+</div>

@@ -1,0 +1,34 @@
+﻿@model IEnumerable<InspirationItem>
+
+    <div class="grid">
+    <div class="grid-sizer"></div>
+    @foreach (var item in Model)
+    {
+        <div class="grid-item">
+            <img src="@item.Image.Url">
+        </div>
+    }
+    </div>
+
+
+
+
+
+
+
+
+    @section scripts{
+        <script>
+        $(document).ready(function () 
+        {
+            $('.grid').masonry({
+                // options
+                itemSelector: '.grid-item',
+                columnWidth: '.grid-sizer',
+                percentPosition: true,
+                gutter: 2
+            });
+        })
+
+        </script>
+    }

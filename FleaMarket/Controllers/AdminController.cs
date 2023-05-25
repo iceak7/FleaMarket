@@ -232,7 +232,7 @@ namespace FleaMarket.Controllers
                             itemToUpdate.Status = item.Status;
 
                             itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
-                            itemToUpdate.Images = item.Images;
+                            itemToUpdate.Images =  await _uow.ImageRepository.GetByIds(item.Images.Select(x => x.Id));
 
                             await _uow.SaveAsync();
 
@@ -249,7 +249,7 @@ namespace FleaMarket.Controllers
                             Title = item.Title,
                             Price = item.Price,
                             Status = item.Status,
-                            Images = item.Images,
+                            Images = await _uow.ImageRepository.GetByIds(item.Images.Select(x => x.Id)),
                             Categories = await _uow.ItemCategories.GetByIds(item.Categories)
                         };
 
@@ -261,6 +261,7 @@ namespace FleaMarket.Controllers
                         return RedirectToAction("MarketItems");
                     }
                 }
+                TempData["ErrorMessage"] = "Could not update the item.";
 
                 return View(item);
             }
@@ -350,6 +351,7 @@ namespace FleaMarket.Controllers
                         var path = imageToDelete.Url;
 
                         var isDeleted = await _uow.ImageRepository.Delete(imageToDelete);
+                        await _uow.SaveAsync();
 
                         if (isDeleted)
                         {
@@ -365,6 +367,138 @@ namespace FleaMarket.Controllers
             {
                 return Json(new { Success = false });
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> InspirationItems()
+        {
+            var items = await _uow.InspirationItems.GetAll();
+
+            return View(items);
+        }
+        [HttpGet]
+        public async Task<IActionResult> AddOrEditInspirationItem(int? id)
+        {
+            if(id == null)
+            {
+                InspirationItemViewModel item = new InspirationItemViewModel();
+
+                return View(item);
+            }
+            else
+            {
+                var itemToUpdate = await _uow.InspirationItems.GetById(id.Value);
+
+                if(itemToUpdate != null)
+                {
+                    var item = new InspirationItemViewModel();
+
+                    item.Title = itemToUpdate.Title;
+                    item.Description = itemToUpdate.Description;
+                    item.Image = itemToUpdate.Image;
+                    item.Id = itemToUpdate.Id;
+
+                    return View(item);
+                }
+                return NotFound();
+
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddOrEditInspirationItem(InspirationItemViewModel item)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (item.Id != null)
+                    {
+                        var itemToUpdate = await _uow.InspirationItems.GetById(item.Id.Value);
+
+                        if (itemToUpdate == null)
+                        {
+                            TempData["ErrorMessage"] = "Could not find the item.";
+                            return View(item);
+                        }
+
+
+                        itemToUpdate.Title = item.Title;
+                        itemToUpdate.Description = item.Description;
+
+                        if(itemToUpdate.Image.Id != item.Image.Id)
+                        {
+                            var imageToDelete = itemToUpdate.Image;
+                            var isDeleted = await _uow.ImageRepository.Delete(imageToDelete);
+                            if(isDeleted)
+                            {
+                                itemToUpdate.Image = await _uow.ImageRepository.GetById(item.Image.Id);
+                                DeleteImage(imageToDelete.Url);
+                            }
+                            else
+                            {
+                                TempData["ErrorMessage"] = "Error when changing image.";
+                                return View(item);
+                            }
+                        }
+
+                        await _uow.SaveAsync();
+
+                        TempData["SuccessMessage"] = "Successfully updated inspiration item.";
+                        return RedirectToAction("InspirationItems");
+                    }
+                    else
+                    {
+                        var newItem = new InspirationItem()
+                        {
+                            Description = item.Description,
+                            Image = await _uow.ImageRepository.GetById(item.Image.Id),
+                            Title = item.Title
+                        };
+
+                        var createdItem = await _uow.InspirationItems.Create(newItem);
+                        await _uow.SaveAsync();
+
+                        TempData["SuccessMessage"] = "Successfully added inspiration item.";
+
+                        return RedirectToAction("InspirationItems");
+                    }
+                }
+                TempData["ErrorMessage"] = "Could not update the item.";
+                return View(item);
+            }
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred.";
+                return View(item);
+            }   
+       
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteInspirationItem(int id)
+        {
+            try
+            {
+                if (id != 0)
+                {
+                    var item = await _uow.InspirationItems.GetById(id);
+                    if (item != null)
+                    {
+                        await _uow.InspirationItems.Delete(item);
+                        await _uow.SaveAsync();
+
+                        TempData["SuccessMessage"] = "Successfully deleted inspiration item.";
+
+                        return RedirectToAction("InspirationItems");
+                    }
+                }
+                TempData["ErrorMessage"] = "Unable to delete inspiration item.";
+                return RedirectToAction("MarketItems");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error when deleting inspiration item.";
+                return RedirectToAction("InspirationItems");
+            }
 
         }
 
@@ -374,7 +508,9 @@ namespace FleaMarket.Controllers
 
             string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folderPath);
 
-            await file.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+            using var filestream = new FileStream(serverFolder, FileMode.Create);
+            await file.CopyToAsync(filestream);
+            filestream.Close();
 
             return "/" + folderPath;
         }

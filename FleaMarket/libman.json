@@ -5,6 +5,13 @@
     {
       "library": "choices.js@10.2.0",
       "destination": "wwwroot/lib/choices.js/"
+    },
+    {
+      "library": "masonry@4.2.2",
+      "destination": "wwwroot/lib/masonry/",
+      "files": [
+        "masonry.pkgd.min.js"
+      ]
     }
   ]
 }

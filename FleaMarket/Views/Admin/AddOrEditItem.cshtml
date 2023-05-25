@@ -59,21 +59,22 @@
                         <div id='image-gallery-container-@Model.Images[i].Id}' class='image-gallery-container'>
                             <span onclick='deleteImage(@Model.Images[i].Id)' class="close"><i class="far fa-times-circle"></i></span>
                             <input type="hidden" name="Images[@i].Url" value=@Model.Images[i].Url />
-                            <input type="hidden" name="Images[@i].Id" value=@Model.Images[i].Url />
+                            <input type="hidden" name="Images[@i].Id" value=@Model.Images[i].Id />
                             <img src='@Model.Images[i].Url'>
                         </div>
                     }
                 </div>
             </div>
-
-            @if (Model.Id != null)
-            {
-                <button type="submit" class="btn btn-success">Update item <i class="fas fa-save"></i></button>
-            }
-            else
-            {
-                <button type="submit" class="btn btn-success">Add item <i class="fas fa-plus"></i></button>
-            }
+            <div class="row">
+                @if (Model.Id != null)
+                {
+                    <button type="submit" class="btn btn-success">Update item <i class="fas fa-save"></i></button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success">Add item <i class="fas fa-plus"></i></button>
+                }
+            </div>
         </form>
     </div>
 </div>
@@ -83,14 +84,12 @@
     <script>
         $(document).ready(function () {
             var list = @Json.Serialize(Model.CategoriesToChoose);
-            console.log(list);
 
             var multipleSelectDropdown = new Choices('#selectCategories', {
                 removeItemButton: true,
                 choices: list
             });
-
-            var imagesCount = 0;
+            var imagesCount = @Model.Images.Count;
 
             $('#imageInput').change(function(e){
                 var image = $('#imageInput')[0].files[0];
