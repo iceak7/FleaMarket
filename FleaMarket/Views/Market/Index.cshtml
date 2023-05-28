@@ -1,0 +1,29 @@
+﻿@model IEnumerable<MarketItem>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 market-item-gallery g-2 mb-3">
+    @foreach (var item in Model)
+    {
+        <div class="col">
+            <a asp-controller="Market" asp-action="Item" asp-route-id="@item.Id">
+                <div class="market-item">
+                    <div class="market-item-grid-image-container">
+                        @if (item.Images != null && item.Images?.Count > 0)
+                        {
+                            <img src="@item.Images.FirstOrDefault().Url" class="market-item-image" alt="Item Image">
+                        }
+                        else
+                        {
+                            <p>No Image</p>
+                        }
+                    </div>
+                    <div class="market-item-body">
+                        <h5 class="market-item-title">@item.Title</h5>
+                        <div class="market-item-description">@item.Description </div>
+                        <div class="market-item-price">@(item.Price != null ? item.Price + " kr" : "")</div>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    }
+</div>

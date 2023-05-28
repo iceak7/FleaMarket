@@ -12,6 +12,14 @@
       "files": [
         "masonry.pkgd.min.js"
       ]
+    },
+    {
+      "library": "splidejs@4.1.4",
+      "destination": "wwwroot/lib/splidejs/",
+      "files": [
+        "js/splide.min.js",
+        "css/splide.min.css"
+      ]
     }
   ]
 }

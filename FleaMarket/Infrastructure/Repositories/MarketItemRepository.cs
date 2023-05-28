@@ -18,5 +18,13 @@ namespace FleaMarket.Infrastructure.Repositories
 
             return result;
         }
+
+        public async Task<IEnumerable<MarketItem>> GetPublishedItems()
+        {
+            var result = await _appDbContext.MarketItems.Where(x => x.Status == ItemStatus.Published).Include(x => x.Images).Include(x => x.Categories).ToListAsync();
+
+            return result;
+        }
+
     }
 }

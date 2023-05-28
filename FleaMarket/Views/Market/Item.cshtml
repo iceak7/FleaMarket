@@ -1,0 +1,70 @@
+﻿@model MarketItem
+
+<div class="market-item-image-gallery">
+    <section id="main-carousel" class="splide" aria-label="My Awesome Gallery">
+        <div class="splide__track">
+            <ul class="splide__list">
+                @foreach (var item in Model.Images)
+                {
+                    <li class="splide__slide">
+                        <div class="splide-image-container">
+                            <img src="@item.Url" alt="">
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+
+    <ul id="thumbnails" class="thumbnails">
+        @foreach (var item in Model.Images)
+        {
+            <li class="thumbnail">
+                <img src="@item.Url" alt="">
+            </li>
+        }
+    </ul>
+</div>
+
+@section scripts{
+    <script>
+        var splide = new Splide('#main-carousel', {
+            pagination: false
+        });
+
+
+        var thumbnails = document.getElementsByClassName('thumbnail');
+        var current;
+
+
+        for (var i = 0; i < thumbnails.length; i++) {
+            initThumbnail(thumbnails[i], i);
+        }
+
+
+        function initThumbnail(thumbnail, index) {
+            thumbnail.addEventListener('click', function () {
+                splide.go(index);
+            });
+        }
+
+
+        splide.on('mounted move', function () {
+            var thumbnail = thumbnails[splide.index];
+
+
+            if (thumbnail) {
+                if (current) {
+                    current.classList.remove('is-active');
+                }
+
+
+                thumbnail.classList.add('is-active');
+                current = thumbnail;
+            }
+        });
+
+
+        splide.mount();
+    </script>
+}

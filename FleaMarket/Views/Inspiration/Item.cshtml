@@ -1,15 +1,19 @@
 ﻿@model InspirationItem
 
-<div class="row">
+<a asp-action="" asp-controller="Inspiration"><i class="fas fa-arrow-left"></i> Go Back</a>
+<div class="inspiration-view-item @(Model.Title == null && Model.Description == null ? "justify-content-center" : "")">
     <div class="inspiration-view-image">
         <img src="@Model.Image.Url" />
     </div>
-    <div class="inspiration-view-info">
-        <div class="inspiration-view-title">
-            @Model.Title
+    @if (Model.Title != null || Model.Description != null)
+    {
+        <div class="inspiration-view-info">
+            <div class="inspiration-view-title">
+                <h4>@Model.Title</h4>
+            </div>
+            <div class="inspiration-view-text">
+                @Model.Description
+            </div>
         </div>
-        <div class="inspiration-view-text">
-            @Model.Description
-        </div>
-    </div>
+    }
 </div>
