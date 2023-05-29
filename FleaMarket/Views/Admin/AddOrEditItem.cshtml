@@ -54,15 +54,19 @@
                     <input id="imageInput" type="file" class="form-control" />
                 </div>
                 <div id="imageGallery" class="col-12 image-gallery">
-                    @for(int i = 0; i < Model.Images.Count; i++)
+                    @if(Model.Images != null)
                     {
-                        <div id='image-gallery-container-@Model.Images[i].Id}' class='image-gallery-container'>
-                            <span onclick='deleteImage(@Model.Images[i].Id)' class="close"><i class="far fa-times-circle"></i></span>
-                            <input type="hidden" name="Images[@i].Url" value=@Model.Images[i].Url />
-                            <input type="hidden" name="Images[@i].Id" value=@Model.Images[i].Id />
-                            <img src='@Model.Images[i].Url'>
-                        </div>
+                        @for (int i = 0; i < Model.Images.Count; i++)
+                        {
+                            <div id='image-gallery-container-@Model.Images[i].Id}' class='image-gallery-container'>
+                                <span onclick='deleteImage(@Model.Images[i].Id)' class="close"><i class="far fa-times-circle"></i></span>
+                                <input type="hidden" name="Images[@i].Url" value=@Model.Images[i].Url />
+                                <input type="hidden" name="Images[@i].Id" value=@Model.Images[i].Id />
+                                <img src='@Model.Images[i].Url'>
+                            </div>
+                        }
                     }
+
                 </div>
             </div>
             <div class="row">
@@ -89,7 +93,8 @@
                 removeItemButton: true,
                 choices: list
             });
-            var imagesCount = @Model.Images.Count;
+
+            var imagesCount = @(Model.Images== null ? 0 : Model.Images.Count);
 
             $('#imageInput').change(function(e){
                 var image = $('#imageInput')[0].files[0];
@@ -124,7 +129,13 @@
                         insertErrorMessage("Error when uploading image.");
                     }
                 });
-            })
+            });
+
+            $(".image-gallery-container").click(function(e){
+                var url = $(this).children("img:first").attr("src");
+                previewImage(url);
+            });
+
         });
 
         function deleteImage(id){
@@ -163,5 +174,7 @@
 
             });
         }
+
+
     </script>
 }

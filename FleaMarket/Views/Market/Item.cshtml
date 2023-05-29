@@ -1,33 +1,38 @@
 ﻿@model MarketItem
 
 <div class="market-item-image-gallery">
-    <section id="main-carousel" class="splide" aria-label="My Awesome Gallery">
-        <div class="splide__track">
-            <ul class="splide__list">
-                @foreach (var item in Model.Images)
-                {
-                    <li class="splide__slide">
-                        <div class="splide-image-container">
-                            <img src="@item.Url" alt="">
-                        </div>
-                    </li>
-                }
-            </ul>
-        </div>
-    </section>
+    @if(Model.Images != null)
+    {
+        <section id="main-carousel" class="splide" aria-label="My Awesome Gallery">
+            <div class="splide__track">
+                <ul class="splide__list">
+                    @foreach (var item in Model.Images)
+                    {
+                        <li class="splide__slide">
+                            <div class="splide-image-container">
+                                <img src="@item.Url" alt="">
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </section>
 
-    <ul id="thumbnails" class="thumbnails">
-        @foreach (var item in Model.Images)
-        {
-            <li class="thumbnail">
-                <img src="@item.Url" alt="">
-            </li>
-        }
-    </ul>
+        <ul id="thumbnails" class="thumbnails">
+            @foreach (var item in Model.Images)
+            {
+                <li class="thumbnail">
+                    <img src="@item.Url" alt="">
+                </li>
+            }
+        </ul>
+    }
 </div>
 
 @section scripts{
     <script>
+        var images = @(Model.Images == null ? 0 : Model.Images.Count);
+
         var splide = new Splide('#main-carousel', {
             pagination: false
         });
@@ -62,9 +67,11 @@
                 thumbnail.classList.add('is-active');
                 current = thumbnail;
             }
-        });
+        }); 
 
+        if(images > 0){
+            splide.mount();
+        }
 
-        splide.mount();
     </script>
 }

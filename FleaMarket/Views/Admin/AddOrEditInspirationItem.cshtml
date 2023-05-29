@@ -38,10 +38,38 @@
                 <input type="text" asp-for="Title" class="form-control">
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
+            <div class="mb-3 col-md-3">
+                <label asp-for="Status" class="form-label"></label>
+                <select class="form-select" asp-for="Status" asp-items="Html.GetEnumSelectList<InspirationStatus>()">
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
             <div class="mb-3 col-12">
                 <label asp-for="Description" class="form-label">Description(optional)</label>
                 <textarea class="form-control" asp-for="Description" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="mb-3 col-12">
+                <label class="form-label" for="inspirationMarketItemsInput">Link market items</label>
+                <ul class="list-group list-group-horizontal add-market-item-list" id="inspirationMarketItemsInput">
+                    @foreach (var item in Model.MarketItemOptions)
+                    {
+                        <li class="list-group-item add-market-item-item">
+                            <input class="form-check-input" id="marketItemOption-@item.Id" type="checkbox" value="@item.Id" name="SelectedItems" @(item.Selected == true ? "checked" : "") >
+                            <div class="add-market-item-item-container">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1 fw-bold">@item.Title</h5>
+                                    @if(item.Price != null)
+                                    {
+                                        <small>@item.Price kr</small>
+                                    }
+                                </div>
+                                <p class="mb-1" title="@item.Description">@item.Description</p>
+                            </div>
+
+                        </li>
+                    }
+                </ul>
             </div>
             <div class="row">
                 @if (Model.Id != null)

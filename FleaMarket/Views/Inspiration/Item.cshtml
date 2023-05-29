@@ -1,7 +1,7 @@
 ﻿@model InspirationItem
 
 <a asp-action="" asp-controller="Inspiration"><i class="fas fa-arrow-left"></i> Go Back</a>
-<div class="inspiration-view-item @(Model.Title == null && Model.Description == null ? "justify-content-center" : "")">
+<div class="inspiration-view-item mt-2 @(Model.Title == null && Model.Description == null ? "justify-content-center" : "")">
     <div class="inspiration-view-image">
         <img src="@Model.Image.Url" />
     </div>
@@ -9,7 +9,7 @@
     {
         <div class="inspiration-view-info">
             <div class="inspiration-view-title">
-                <h4>@Model.Title</h4>
+                <h3>@Model.Title</h3>
             </div>
             <div class="inspiration-view-text">
                 @Model.Description

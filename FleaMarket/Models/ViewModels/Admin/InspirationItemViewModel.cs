@@ -10,9 +10,9 @@ namespace FleaMarket.Models.ViewModels.Admin
         [MaxLength(500)]
         public string Description { get; set; }
         [Required]
-
-
         public Image Image { get; set; }
-        public List<MarketItem> MarketItems { get; set; }
+        public InspirationStatus Status { get; set; }
+        public List<int> SelectedItems { get; set; }
+        public List<MarketItemOptionViewModel> MarketItemOptions { get; set; } 
     }
 }

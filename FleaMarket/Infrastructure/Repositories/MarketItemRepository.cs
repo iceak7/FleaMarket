@@ -1,6 +1,7 @@
 ﻿using FleaMarket.Infrastructure.DataAccess;
 using FleaMarket.Models;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging.Signing;
 
 namespace FleaMarket.Infrastructure.Repositories
 {
@@ -17,6 +18,17 @@ namespace FleaMarket.Infrastructure.Repositories
             var result = await _appDbContext.MarketItems.Where(x => x.Id == id).Include(x => x.InspirationItems).Include(x => x.Categories).Include(x => x.Images).FirstOrDefaultAsync();
 
             return result;
+        }
+
+        public async Task<List<MarketItem>> GetByIds(IEnumerable<int> ids)
+        {
+            List<MarketItem> items = new List<MarketItem>();
+
+            if (ids?.Count() > 0)
+            {
+                items = await _context.MarketItems.Where(x => ids.Contains(x.Id)).ToListAsync();
+            }
+            return items;
         }
 
         public async Task<IEnumerable<MarketItem>> GetPublishedItems()

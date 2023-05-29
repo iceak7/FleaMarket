@@ -199,7 +199,7 @@ namespace FleaMarket.Controllers
                         {
                             label = x.Name,
                             value = x.Id,
-                            selected= item.Categories.Contains(x) ? true : false 
+                            selected= item.Categories.Contains(x) 
                         }).ToList(),
                         Images = item.Images.ToList(),
                         Description = item.Description,
@@ -232,7 +232,7 @@ namespace FleaMarket.Controllers
                             itemToUpdate.Status = item.Status;
 
                             itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
-                            itemToUpdate.Images =  await _uow.ImageRepository.GetByIds(item.Images.Select(x => x.Id));
+                            itemToUpdate.Images =  await _uow.ImageRepository.GetByIds(item.Images?.Select(x => x.Id));
 
                             await _uow.SaveAsync();
 
@@ -249,7 +249,7 @@ namespace FleaMarket.Controllers
                             Title = item.Title,
                             Price = item.Price,
                             Status = item.Status,
-                            Images = await _uow.ImageRepository.GetByIds(item.Images.Select(x => x.Id)),
+                            Images = await _uow.ImageRepository.GetByIds(item.Images?.Select(x => x.Id)),
                             Categories = await _uow.ItemCategories.GetByIds(item.Categories)
                         };
 
@@ -382,6 +382,17 @@ namespace FleaMarket.Controllers
             {
                 InspirationItemViewModel item = new InspirationItemViewModel();
 
+                var marketItem = await _uow.MarketItems.GetAll();
+
+                item.MarketItemOptions = marketItem.Select(x => new MarketItemOptionViewModel()
+                {
+                    Id = x.Id,
+                    Description = x.Description,
+                    Selected = false,
+                    Title = x.Title,
+                    Price = x.Price
+                }).ToList();
+
                 return View(item);
             }
             else
@@ -396,6 +407,18 @@ namespace FleaMarket.Controllers
                     item.Description = itemToUpdate.Description;
                     item.Image = itemToUpdate.Image;
                     item.Id = itemToUpdate.Id;
+                    item.Status = itemToUpdate.Status;
+
+                    var marketItem = await _uow.MarketItems.GetAll();
+
+                    item.MarketItemOptions = marketItem.Select(x => new MarketItemOptionViewModel()
+                    {
+                        Id = x.Id,
+                        Description = x.Description,
+                        Selected = itemToUpdate.MarketItems.Contains(x),
+                        Title = x.Title,
+                        Price = x.Price
+                    }).ToList();
 
                     return View(item);
                 }
@@ -423,6 +446,8 @@ namespace FleaMarket.Controllers
 
                         itemToUpdate.Title = item.Title;
                         itemToUpdate.Description = item.Description;
+                        itemToUpdate.Status = item.Status;
+                        itemToUpdate.MarketItems = await _uow.MarketItems.GetByIds(item.SelectedItems);
 
                         if(itemToUpdate.Image.Id != item.Image.Id)
                         {
@@ -451,7 +476,9 @@ namespace FleaMarket.Controllers
                         {
                             Description = item.Description,
                             Image = await _uow.ImageRepository.GetById(item.Image.Id),
-                            Title = item.Title
+                            Status = item.Status,
+                            Title = item.Title,
+                            MarketItems = await _uow.MarketItems.GetByIds(item.SelectedItems)
                         };
 
                         var createdItem = await _uow.InspirationItems.Create(newItem);

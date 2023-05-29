@@ -16,10 +16,14 @@ namespace FleaMarket.Infrastructure.Repositories
         {
             return await _appDbContext.InspirationItems.Include(x=>x.Image).ToListAsync();
         }
+        public async Task<IEnumerable<InspirationItem>> GetPublishedItems()
+        {
+            return await _appDbContext.InspirationItems.Where(x => x.Status == InspirationStatus.Published).Include(x => x.Image).ToListAsync();
+        }
 
         public override async Task<InspirationItem> GetById(int id)
         {
-            return await _appDbContext.InspirationItems.Include(x=> x.Image).FirstOrDefaultAsync(x => x.Id == id);
+            return await _appDbContext.InspirationItems.Include(x=> x.Image).Include(x => x.MarketItems).FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

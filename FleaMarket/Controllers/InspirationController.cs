@@ -12,7 +12,7 @@ namespace FleaMarket.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var items = await _uow.InspirationItems.GetAll();
+            var items = await _uow.InspirationItems.GetPublishedItems();
 
             return View(items);
         }

@@ -10,9 +10,15 @@ namespace FleaMarket.Models
         [MaxLength(500)]
         public string Description { get; set; }
         [Required]
-
-
         public Image Image { get; set; }
+        public InspirationStatus Status { get; set; }
+
         public ICollection<MarketItem> MarketItems { get; set; }
+    }
+
+    public enum InspirationStatus
+    {
+        Unpublished,
+        Published
     }
 }
