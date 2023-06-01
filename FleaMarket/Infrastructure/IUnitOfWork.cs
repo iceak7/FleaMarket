@@ -10,6 +10,7 @@ namespace FleaMarket.Infrastructure
         IUserRepository UserRepository { get; }
         IRolesRepository RolesRepository { get; }
         IImageRepository ImageRepository { get; }
+        IItemRequestRepository ItemRequestRepository { get; }
         Task<int> SaveAsync();
     }
 }

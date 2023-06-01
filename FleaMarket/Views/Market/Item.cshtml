@@ -1,33 +1,70 @@
 ﻿@model MarketItem
 
-<div class="market-item-image-gallery">
-    @if(Model.Images != null)
-    {
-        <section id="main-carousel" class="splide" aria-label="My Awesome Gallery">
-            <div class="splide__track">
-                <ul class="splide__list">
-                    @foreach (var item in Model.Images)
-                    {
-                        <li class="splide__slide">
-                            <div class="splide-image-container">
-                                <img src="@item.Url" alt="">
-                            </div>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </section>
+<a asp-action="" asp-controller="Market"><i class="fas fa-arrow-left"></i> Alla föremål</a>
+<div class="market-item-display-container mt-3">
 
-        <ul id="thumbnails" class="thumbnails">
-            @foreach (var item in Model.Images)
-            {
-                <li class="thumbnail">
-                    <img src="@item.Url" alt="">
-                </li>
-            }
-        </ul>
-    }
+        @if (Model.Images?.Count >0)
+    {
+            <div class="market-item-image-gallery">
+            <section id="main-carousel" class="splide" aria-label="My Awesome Gallery">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        @foreach (var item in Model.Images)
+                        {
+                            <li class="splide__slide">
+                                <div class="splide-image-container">
+                                    <img src="@item.Url" alt="">
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </section>
+
+            <ul id="thumbnails" class="thumbnails">
+                @foreach (var item in Model.Images)
+                {
+                    <li class="thumbnail">
+                        <img src="@item.Url" alt="">
+                    </li>
+                }
+            </ul>
+        </div>
+        }
+
+    <div class="market-item-display-info">
+        <div class="mark-display-top">
+            <div class="market-item-display-headline">
+                <h3>@Model.Title</h3>
+                @if (Model.Price != null)
+                {
+                    <h4>@Model.Price kr</h4>
+                }
+                else
+                {
+                    <small>Inget price satt</small>
+                }
+
+            </div>
+            <div class="market-item-display-description">
+                @Model.Description
+            </div>
+        </div>
+        <div class="mark-display-bottom">
+            <div class="market-item-contact">
+                @if(Model.Status == ItemStatus.Sold)
+                {
+                    <a role="button" href="" class="btn btn-dark disabled">Såld</a>
+                }
+                else
+                {
+                    <a asp-controller="ItemRequest" asp-action="Create" asp-route-itemId="@Model.Id" class="btn btn-dark" role="button">Gör Intresseanmälan</a>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
 
 @section scripts{
     <script>

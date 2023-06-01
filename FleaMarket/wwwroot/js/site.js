@@ -13,5 +13,14 @@ function insertErrorMessage(message) {
 function previewImage(url) {
     console.log(url);
 
-    $('body').prepend("<div class='image-preview-modal'><img src='" + url + "'></div>");
+    $('body').prepend(`<div class='image-preview-modal' id='image-preview-modal'> 
+        <div class='image-preview-image-container'>
+            <span class='close-modal'><button type='button' onClick='onCloseImagePreview()' class='btn-close' aria-label='Close'></button></span>
+            <img src='${url}'>
+        </div>
+    </div>`);
+}
+
+function onCloseImagePreview(){
+    $('#image-preview-modal').remove();
 }

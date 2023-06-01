@@ -58,7 +58,7 @@
                     {
                         @for (int i = 0; i < Model.Images.Count; i++)
                         {
-                            <div id='image-gallery-container-@Model.Images[i].Id}' class='image-gallery-container'>
+                            <div id='image-gallery-container-@Model.Images[i].Id' class='image-gallery-container'>
                                 <span onclick='deleteImage(@Model.Images[i].Id)' class="close"><i class="far fa-times-circle"></i></span>
                                 <input type="hidden" name="Images[@i].Url" value=@Model.Images[i].Url />
                                 <input type="hidden" name="Images[@i].Id" value=@Model.Images[i].Id />
@@ -69,14 +69,14 @@
 
                 </div>
             </div>
-            <div class="row">
+            <div class="col-12">
                 @if (Model.Id != null)
                 {
-                    <button type="submit" class="btn btn-success">Update item <i class="fas fa-save"></i></button>
+                    <button type="submit" class="btn btn-success w-100">Update item <i class="fas fa-save"></i></button>
                 }
                 else
                 {
-                    <button type="submit" class="btn btn-success">Add item <i class="fas fa-plus"></i></button>
+                    <button type="submit" class="btn btn-success w-100">Add item <i class="fas fa-plus"></i></button>
                 }
             </div>
         </form>

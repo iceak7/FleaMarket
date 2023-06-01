@@ -23,7 +23,7 @@ namespace FleaMarket.Infrastructure.Repositories
 
         public override async Task<InspirationItem> GetById(int id)
         {
-            return await _appDbContext.InspirationItems.Include(x=> x.Image).Include(x => x.MarketItems).FirstOrDefaultAsync(x => x.Id == id);
+            return await _appDbContext.InspirationItems.Include(x=> x.Image).Include(x => x.MarketItems).ThenInclude( x => x.Images).FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

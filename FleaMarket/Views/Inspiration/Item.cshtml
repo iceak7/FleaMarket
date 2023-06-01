@@ -1,7 +1,7 @@
 ﻿@model InspirationItem
 
-<a asp-action="" asp-controller="Inspiration"><i class="fas fa-arrow-left"></i> Go Back</a>
-<div class="inspiration-view-item mt-2 @(Model.Title == null && Model.Description == null ? "justify-content-center" : "")">
+<a asp-action="" asp-controller="Inspiration"><i class="fas fa-arrow-left"></i> Alla bilder</a>
+<div class="inspiration-view-item mt-3 @(Model.Title == null && Model.Description == null ? "justify-content-center" : "")">
     <div class="inspiration-view-image">
         <img src="@Model.Image.Url" />
     </div>
@@ -17,3 +17,43 @@
         </div>
     }
 </div>
+
+@if (Model.MarketItems.Any())
+{
+    <div class="linked-market-items-container">
+        <h4>Föremål på bilden</h4>
+        <div class="inspiration-market-items">
+            @foreach (var item in Model.MarketItems)
+            {
+                if (item.Status != ItemStatus.Unpublished)
+                {
+                    <a asp-controller="Market" asp-action="Item" asp-route-id="@item.Id">
+                        <div class="inspiration-market-item">
+                            <div class="inspiration-market-item-image">
+                                @if (item.Images?.Count > 0)
+                                {
+                                    <img src="@item.Images.First().Url">
+                                }
+                                else
+                                {
+                                    <p>Ingen Bild</p>
+                                }
+
+                            </div>
+                            <div class="inspiration-market-item-info">
+                                <h4>@item.Title</h4>
+                                @if (item.Price != null)
+                                {
+                                    <p>@item.Price kr</p>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                }
+
+            }
+        </div>
+    </div>
+}
+
+

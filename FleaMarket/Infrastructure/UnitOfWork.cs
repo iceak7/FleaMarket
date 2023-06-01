@@ -12,7 +12,8 @@ namespace FleaMarket.Infrastructure
         public IItemCategoryRepository ItemCategories { get; }
         public IUserRepository UserRepository { get; }
         public IRolesRepository RolesRepository { get; }
-        public IImageRepository ImageRepository { get; set; }
+        public IImageRepository ImageRepository { get;  }
+        public IItemRequestRepository ItemRequestRepository { get; }
 
         public UnitOfWork(AppDbContext appDbContext, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -23,6 +24,7 @@ namespace FleaMarket.Infrastructure
             UserRepository = new UserRepository(userManager);
             RolesRepository = new RolesRepository(roleManager);
             ImageRepository = new ImageRepository(appDbContext);
+            ItemRequestRepository = new ItemRequestRepository(appDbContext);
         }
 
 

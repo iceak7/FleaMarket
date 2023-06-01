@@ -94,6 +94,40 @@ namespace FleaMarket.Migrations
                     b.ToTable("ItemCategories");
                 });
 
+            modelBuilder.Entity("FleaMarket.Models.ItemRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("MarketItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PhoneNr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MarketItemId");
+
+                    b.ToTable("ItemRequest");
+                });
+
             modelBuilder.Entity("FleaMarket.Models.MarketItem", b =>
                 {
                     b.Property<int>("Id")
@@ -381,6 +415,17 @@ namespace FleaMarket.Migrations
                     b.Navigation("Image");
                 });
 
+            modelBuilder.Entity("FleaMarket.Models.ItemRequest", b =>
+                {
+                    b.HasOne("FleaMarket.Models.MarketItem", "MarketItem")
+                        .WithMany("ItemRequests")
+                        .HasForeignKey("MarketItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MarketItem");
+                });
+
             modelBuilder.Entity("ImageMarketItem", b =>
                 {
                     b.HasOne("FleaMarket.Models.Image", null)
@@ -480,6 +525,11 @@ namespace FleaMarket.Migrations
             modelBuilder.Entity("FleaMarket.Models.Image", b =>
                 {
                     b.Navigation("InspirationItems");
+                });
+
+            modelBuilder.Entity("FleaMarket.Models.MarketItem", b =>
+                {
+                    b.Navigation("ItemRequests");
                 });
 #pragma warning restore 612, 618
         }

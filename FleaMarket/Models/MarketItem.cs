@@ -21,6 +21,7 @@ namespace FleaMarket.Models
         public ICollection<ItemCategory> Categories { get; set; }
         public ICollection<Image> Images { get; set; }
         public ICollection<InspirationItem> InspirationItems { get; set; }
+        public ICollection<ItemRequest> ItemRequests{ get; set; }
     }
 
     public enum ItemStatus
