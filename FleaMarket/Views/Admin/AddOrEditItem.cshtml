@@ -1,26 +1,26 @@
 ﻿@model ItemViewModel
 
-<a asp-action="MarketItems" asp-controller="Admin"><i class="fas fa-arrow-left"></i> Go Back</a>
+<a asp-action="MarketItems" asp-controller="Admin"><i class="fas fa-arrow-left"></i> Gå tillbaks</a>
 
-<div class="row mt-3">
+<div class="row mt-3" id="add-or-edit-content">
     @if(Model.Id == null)
     {
-        <h3>Add an item</h3>
+        <h3>Ladda upp ett föremål</h3>
     }
     else
     {
-        <h3>Edit item</h3>
+        <h3>Redigera föremålet</h3>
     }
     <div class="col">
         <form class="row g-3" asp-controller="Admin" asp-action="AddOrEditItem">
             <input type="hidden" asp-for="Id" />
             <div class="mb-3 col-md-9">
-                <label asp-for="Title" class="form-label">Title</label>
+                <label asp-for="Title" class="form-label">Titel</label>
                 <input type="text" asp-for="Title" class="form-control">
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="mb-3 col-md-3">
-                <label asp-for="Price" class="form-label">Price(optional)</label>
+                <label asp-for="Price" class="form-label">Pris(valfritt)</label>
                 <div class="input-group">
                     <input class="form-control" asp-for="Price">
                     <span class="input-group-text">kr</span>
@@ -29,28 +29,29 @@
 
             </div>
             <div class="mb-3 col-12">
-                <label asp-for="Description" class="form-label"></label>
+                <label asp-for="Description" class="form-label">Beskrivning</label>
                 <textarea class="form-control" asp-for="Description" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
+                <button class="btn btn-secondary btn-sm" type="button" onclick="translateDescriptionToEnglish()">Översätt till engelska</button>
             </div>
             <div class="mb-3 col-md-3">
-                <label asp-for="Status" class="form-label"></label>
+                <label asp-for="Status" class="form-label">Status</label>
                 <select class="form-select" asp-for="Status" asp-items="Html.GetEnumSelectList<ItemStatus>()">
                 </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="mb-3 col-md-3">
-                <label asp-for="Categories" class="form-label"></label>
+                <label asp-for="Categories" class="form-label">Kategori(er)</label>
                 <select id="selectCategories" asp-for="Categories">
                 </select>
                 <span asp-validation-for="Categories" class="text-danger"></span>
             </div>
             <div class="mb-3 input-group">
                 <div class="col-12">
-                    <h5>Images</h5>
+                    <h5>Bilder</h5>
                 </div>
                 <div class="col-3-md mb-3">
-                    <label class="form-label" for="imageInput"> Upload Images</label>
+                    <label class="form-label" for="imageInput">Ladda upp bilder</label>
                     <input id="imageInput" type="file" class="form-control" />
                 </div>
                 <div id="imageGallery" class="col-12 image-gallery">
@@ -72,11 +73,11 @@
             <div class="col-12">
                 @if (Model.Id != null)
                 {
-                    <button type="submit" class="btn btn-success w-100">Update item <i class="fas fa-save"></i></button>
+                    <button type="submit" class="btn btn-success w-100">Uppdatera föremålet <i class="fas fa-save"></i></button>
                 }
                 else
                 {
-                    <button type="submit" class="btn btn-success w-100">Add item <i class="fas fa-plus"></i></button>
+                    <button type="submit" class="btn btn-success w-100">Ladda upp föremål <i class="fas fa-plus"></i></button>
                 }
             </div>
         </form>
@@ -99,8 +100,6 @@
             $('#imageInput').change(function(e){
                 var image = $('#imageInput')[0].files[0];
 
-                console.log(image);
-
 
                 var file = new FormData();
                 file.append('image', image)
@@ -113,7 +112,6 @@
                     cache: false,
                     data: file,
                     success: function (data) {
-                        console.log(data);
 
                         if(data.success == true){
                             $('#imageGallery').append(`<div id='image-gallery-container-${data.id}' class='image-gallery-container'>
@@ -123,6 +121,10 @@
                                 <img src='${data.url}'>
                              </div>`)
                              imagesCount++;
+
+                            $("#image-gallery-container-" + data.id).click(function (e) {
+                                previewImage(data.url);
+                            });
                         }
                     },
                     error: function(data){
@@ -154,7 +156,7 @@
                     console.log(data);
                 },
                 error: function (data) {
-                    console.log(error);
+                    console.log(data);
                 }
             });
         }
@@ -172,6 +174,64 @@
                     imagesCount = index + 1;
                 })
 
+            });
+        }
+
+        function translateDescriptionToEnglish(){
+            var text = $("#Description").val();
+
+            $('body').prepend(`<div class="modal" id="add-or-edit-modal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Översättning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div id="text-generation-modal-body" class="modal-body">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span>Översätter...</span>
+              </div>
+              <div class="modal-footer">
+                <button disabled id="accept-text-generation" type="button" class="btn btn-primary">Lägg till i beskrivningen</button>
+              </div>
+            </div>
+          </div>
+        </div>`)
+
+
+            var myModal = new bootstrap.Modal(document.getElementById('add-or-edit-modal'), {
+                keyboard: false
+            })
+
+            myModal.show();
+
+            var file = new FormData();
+            file.append('text', text);
+
+            console.log(file);
+
+            $.ajax({
+                method: "post",
+                url: "/GenerateContent/TranslateToEnglish/",
+                data: file,
+                processData: false,
+                contentType: false,
+                cache: false,
+                success: function (data) {
+                    console.log(data);
+                    if(data.success == true){
+                        var generatedText = data.message.trim();
+                        var newText = text + "\n ---------------------- \n" + generatedText;
+                        console.log(newText);
+                        $('#text-generation-modal-body').html(`<p class='fw-bold'>Ny beskrivning:</p> <p style='white-space:pre-line'>${newText}</p>`);
+                        $('#accept-text-generation').prop('disabled', false);
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                }
             });
         }
 

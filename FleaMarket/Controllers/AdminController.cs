@@ -2,6 +2,7 @@
 using FleaMarket.Models;
 using FleaMarket.Models.Items;
 using FleaMarket.Models.ViewModels.Admin;
+using FleaMarket.Models.ViewModels.Market;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
@@ -20,7 +21,14 @@ namespace FleaMarket.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            return View();
+            var requests = await _uow.ItemRequestRepository.GetAll();
+
+            var item = new DashboardViewModel()
+            {
+                ItemRequests = requests
+            };
+
+            return View(item);
         }
 
         [Authorize(Roles = "SuperAdmin")]
@@ -160,11 +168,59 @@ namespace FleaMarket.Controllers
         }
 
         [HttpGet] 
-        public async Task<IActionResult> MarketItems()
+        public async Task<IActionResult> MarketItems(int? category, string sortOrder, string search, int? page, ItemStatus? status)
         {
-            var items = await _uow.MarketItems.GetAll();
+            var items = await _uow.MarketItems.GetAllItems(category, search, status);
 
-            return View(items);
+            var model = new MarketItemsViewModel()
+            {
+                Search = search,
+                SortOrder = sortOrder,
+                Category = category,
+            };
+
+            if (items?.Count() > 0)
+            {
+                model.PagesCount = (items.Count() - 1) / 10 + 1;
+
+                int pageToUse = page != null ? page.Value : 1;
+
+                if (pageToUse > model.PagesCount)
+                    pageToUse = model.PagesCount;
+
+                int startIndex = 10 * (pageToUse - 1);
+                int count = (startIndex + 10 <= items.Count()) ? 10 : (items.Count() - startIndex);
+
+
+                switch (sortOrder)
+                {
+                    case "newest":
+                        items = items.OrderBy(x => x.PublicationDate).ToList();
+                        break;
+                    case "oldest":
+                        items = items.OrderByDescending(x => x.PublicationDate).ToList();
+                        break;
+                    case "name":
+                        items = items.OrderBy(x => x.Title).ToList();
+                        break;
+                    default:
+                        break;
+                }
+
+                model.Items = items.ToList().GetRange(startIndex, count);
+                model.Page = pageToUse;
+            }
+            else
+            {
+                model.PagesCount = 0;
+                model.Page = 1;
+            }
+
+            var categories = await _uow.ItemCategories.GetAll();
+            model.Categories = categories.ToList();
+
+
+            return View(model);
         }
 
         [HttpGet]
@@ -229,6 +285,11 @@ namespace FleaMarket.Controllers
                             itemToUpdate.Price = item.Price;
                             itemToUpdate.Title = item.Title;
                             itemToUpdate.Description = item.Description;
+
+                            if(itemToUpdate.Status != ItemStatus.Published && item.Status == ItemStatus.Published)
+                            {
+                                itemToUpdate.PublicationDate = DateTime.Now;
+                            }
                             itemToUpdate.Status = item.Status;
 
                             itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
@@ -249,9 +310,11 @@ namespace FleaMarket.Controllers
                             Title = item.Title,
                             Price = item.Price,
                             Status = item.Status,
+                            PublicationDate = item.Status == ItemStatus.Published ? DateTime.Now : null,
                             Images = await _uow.ImageRepository.GetByIds(item.Images?.Select(x => x.Id)),
                             Categories = await _uow.ItemCategories.GetByIds(item.Categories)
                         };
+
 
                         var res = await _uow.MarketItems.Create(marketItem);
                         await _uow.SaveAsync();

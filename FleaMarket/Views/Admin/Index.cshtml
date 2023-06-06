@@ -1,5 +1,48 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model DashboardViewModel
+
+<div class="admin-dashboard">
+    <div class="row">
+
+        <div class="col-md-6 item-requests-dashboard">
+                <h3>Förfrågningar</h3>
+            @foreach (var item in Model.ItemRequests)
+            {
+                <div class="row item-requests-dashboard-item">
+                    <div class="col-12 item-requests-item-link">
+                        <h4>
+                            <a asp-controller="Market" asp-action="Item" asp-route-id="@item.MarketItem.Id"> @item.MarketItem.Title</a>
+                        </h4>
+                    </div>
+                    <div class="col-md-6 item-requests-dashboard-item-info">
+                        <div class="item-requests-info-tag">
+                            <label>Skapad</label> 
+                            <div>@item.Created.ToString("g")</div>
+                        </div>
+                        <div class="item-requests-info-tag">
+                            <label>Status</label> 
+                            <div>@item.Status</div>
+                        </div>
+                        <div class="item-requests-info-tag">
+                            <label>Namn</label> 
+                            <div>@item.Name</div>
+                        </div>
+                        <div class="item-requests-info-tag">
+                            <label>Email</label> 
+                            <div>@item.Email</div>
+                        </div>
+                        <div class="item-requests-info-tag">
+                            <label>Mobilnummer</label> 
+                            <div>@(item.PhoneNr ?? "-")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 item-requests-dashboard-item-message">
+                        <label>Meddelande</label>
+                        <div>@item.Message</div>
+                    </div>
+                </div>
+
+            }
+        </div>
+    </div>
+
+</div>

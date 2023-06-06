@@ -1,62 +1,66 @@
 ﻿@model ItemRequest
 
+<div>
+    <div class="row g-2 mt-3 justify-content-center make-item-request-row">
+        <div class="request-market-item-container col-lg-8">
+            <h3>Skapa förfrågan</h3>
 
-<div class="row mt-3 justify-content-center">
 
-    <div class="col-lg-8">
-        <h3>Skapa förfrågan</h3>
-    </div>
+            <form class="row g-3" asp-controller="ItemRequest" asp-action="Create">
+                <input type="hidden" asp-for="MarketItem.Id" />
+                <input type="hidden" asp-for="MarketItem.Title" />
 
-    <div class="col-lg-8">
-        <form class="row g-3" asp-controller="ItemRequest" asp-action="Create">
-            <input type="hidden" asp-for="MarketItem.Id" />
-            <input type="hidden" asp-for="MarketItem.Title"/>
+                <div class="mb-3 col-12 request-market-item-review">
+                    <label class="form-label">Föremål</label>
+                    <a asp-controller="Market" asp-action="Item" asp-route-id="@Model.MarketItem.Id">
+                        <div class="request-market-item">
+                            <div class="request-market-item-image">
+                                @if (Model.MarketItem.Images?.Count > 0)
+                                {
+                                    <img src="@Model.MarketItem.Images.First().Url">
+                                }
+                                else
+                                {
+                                    <p>Ingen Bild</p>
+                                }
 
-            <div class="mb-3 col-12 request-market-item-review">
-                <label class="form-label">Föremål</label>
-                <a asp-controller="Market" asp-action="Item" asp-route-id="@Model.MarketItem.Id">
-                    <div class="request-market-item">
-                        <div class="request-market-item-image">
-                            @if (Model.MarketItem.Images?.Count > 0)
-                            {
-                                <img src="@Model.MarketItem.Images.First().Url">
-                            }
-                            else
-                            {
-                                <p>Ingen Bild</p>
-                            }
-
+                            </div>
+                            <div class="request-market-item-info">
+                                <h4>@Model.MarketItem.Title</h4>
+                                @if (Model.MarketItem.Price != null)
+                                {
+                                    <p>@Model.MarketItem.Price kr</p>
+                                }
+                            </div>
                         </div>
-                        <div class="request-market-item-info">
-                            <h4>@Model.MarketItem.Title</h4>
-                            @if (Model.MarketItem.Price != null)
-                            {
-                                <p>@Model.MarketItem.Price kr</p>
-                            }
-                        </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label asp-for="Name" class="form-label">Namn</label>
+                    <input type="text" asp-for="Name" class="form-control">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label asp-for="Email" class="form-label">E-postadress</label>
+                    <input type="email" asp-for="Email" class="form-control">
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label asp-for="PhoneNr" class="form-label">Mobilnummer (frivilligt)</label>
+                    <input type="tel" class="form-control" asp-for="PhoneNr">
+                    <span asp-validation-for="PhoneNr" class="text-danger"></span>
 
-            <div class="mb-3 col-md-6">
-                <label asp-for="Email" class="form-label">E-postadress</label>
-                <input type="email" asp-for="Email" class="form-control">
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="mb-3 col-md-6">
-                <label asp-for="PhoneNr" class="form-label">Mobilnummer (frivilligt)</label>
-                <input type="tel" class="form-control" asp-for="PhoneNr">
-                <span asp-validation-for="PhoneNr" class="text-danger"></span>
+                </div>
+                <div class="mb-3 col-12">
+                    <label asp-for="Message" class="form-label">Meddelande</label>
+                    <textarea class="form-control" asp-for="Message" rows="3"></textarea>
+                    <span asp-validation-for="Message" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success w-100">Skapa förfrågan</button>
+                </div>
+            </form>
+        </div>
 
-            </div>
-            <div class="mb-3 col-12">
-                <label asp-for="Message" class="form-label">Meddelande</label>
-                <textarea class="form-control" asp-for="Message" rows="3"></textarea>
-                <span asp-validation-for="Message" class="text-danger"></span>
-            </div>
-            <div class="col-12">
-                   <button type="submit" class="btn btn-success w-100">Skapa förfrågan</button>
-            </div>
-        </form>
     </div>
 </div>

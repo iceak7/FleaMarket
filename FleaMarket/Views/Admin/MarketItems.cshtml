@@ -1,16 +1,47 @@
-﻿@model IEnumerable<MarketItem>
+﻿@model MarketItemsViewModel
 
-<div class="row">
+<div class="row admin-market-items-row">
     <div class="col">
-        <h3>Market items</h3>
+        <h3>Föremål</h3>
+    </div>
+    <div class="col-12">
+        <form method="get" asp-controller="Admin" asp-action="MarketItems" class="row g-2" id="market-items-form">
+            <input type="hidden" name="page" value="@Model.Page" />
+            <div class="col-6 col-md-4 col-lg-3">
+                <label class="form-label" asp-for="Category">Kategori</label>
+                @Html.DropDownListFor(x=>x.Category, Model.Categories.Select(x=> new SelectListItem(){Value = x.Id.ToString(), Text = x.Name}),"Alla", new { @class = "form-select", @onchange = "updateMarketItems()" })
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <label class="form-label" asp-for="SortOrder">Sortera</label>
+                <select asp-for="SortOrder" class="form-select" onchange="updateMarketItems()">
+                    <option value="">Välj sorteringsordning</option>
+                    <option value="newest">Nyast</option>
+                    <option value="oldest">Äldst</option>
+                    <option value="name">Namn</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <label class="form-label" asp-for="Status"></label>
+                @Html.DropDownListFor(x=>x.Status, Html.GetEnumSelectList(typeof(ItemStatus)), "Alla", new { @class = "form-select", @onchange = "updateMarketItems()" })
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <label class="form-label" asp-for="Search">Sök</label>
+                <div class="input-group search-input">
+                    <input asp-for="Search" class="form-control" />
+                    <span class="input-group-text"><button type="submit" class="btn btn-primary ">Sök</button></span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-12 mt-2">
         <table class="table">
             <thead>
                 <tr>
                     <th scope="col">
-                        Title
+                        Titel
                     </th>
                     <th scope="col">
-                        Price
+                        Pris
                     </th>
                     <th scope="col">
                         Status
@@ -19,19 +50,21 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @if (Model.Items?.Count() > 0)
                 {
-                    <tr>
-                        <td>
-                            @item.Title
-                        </td>
-                        <td>
-                            @item.Price
-                        </td>
-                        <td>
-                            @item.Status
-                        </td>
-                        <td class="shrink">
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                @item.Title
+                            </td>
+                            <td>
+                                @item.Price
+                            </td>
+                            <td>
+                                @item.Status
+                            </td>
+                            <td class="shrink">
                                 <ul class="table-buttons">
                                     <li> <a asp-controller="Admin" asp-action="AddOrEditItem" asp-route-id="@item.Id" class="btn btn-outline-warning"><i class="far fa-edit"></i></a></li>
                                     <li>
@@ -44,17 +77,53 @@
                                             </form>
                                         </span>
                                     </li>
-                                </ul>                       
+                                </ul>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            <p>Inga matchningar</p>
                         </td>
                     </tr>
                 }
-
             </tbody>
         </table>
     </div>
-</div>
-<div class="row">
+    <div class="col-6">
+        <nav>
+            <ul class="pagination">
+                <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-controller="Admin" asp-action="MarketItems" asp-route-page="@(Model.Page-1)" asp-route-sortorder="@Model.SortOrder" asp-route-category="@Model.Category" asp-route-search="@Model.Search" asp-route-status="@Model.Status">Previous</a>
+                </li>
+
+                @for (int i = 1; i <= Model.PagesCount; i++)
+                {
+                    if (Model.Page == i)
+                    {
+                        <li class="page-item active" )>
+                            <span class="page-link">@i</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item" )>
+                            <a class="page-link" asp-controller="Admin" asp-action="MarketItems" asp-route-page="@i" asp-route-sortorder="@Model.SortOrder" asp-route-category="@Model.Category" asp-route-search="@Model.Search" asp-route-status="@Model.Status">@i</a>
+                        </li>
+                    }
+
+                }
+
+                <li class="page-item @((Model.Page == Model.PagesCount || Model.PagesCount == 0) ? "disabled" : "")">
+                    <a class="page-link" asp-controller="Admin" asp-action="MarketItems" asp-route-page="@(Model.Page+1)" asp-route-sortorder="@Model.SortOrder" asp-route-category="@Model.Category" asp-route-search="@Model.Search" asp-route-status="@Model.Status">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
     <div class="col">
-        <a asp-controller="Admin" asp-action="AddOrEditItem" class="btn btn-success">Add an item <i class="fas fa-plus"></i></i></a>
+        <a asp-controller="Admin" asp-action="AddOrEditItem" class="btn btn-success float-end">Nytt föremål <i class="fas fa-plus"></i></a>
     </div>
 </div>

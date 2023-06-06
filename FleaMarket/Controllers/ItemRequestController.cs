@@ -44,25 +44,36 @@ namespace FleaMarket.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ItemRequest request)
         {
-            if(ModelState.IsValid)
+            try
             {
-                var marketItem = await _uow.MarketItems.GetById(request.MarketItem.Id);
+                if (ModelState.IsValid)
+                {
+                    var marketItem = await _uow.MarketItems.GetById(request.MarketItem.Id);
 
-                if(marketItem != null) 
-                { 
-                    request.MarketItem = marketItem;
-                    request.Created = DateTime.Now;
+                    if (marketItem != null)
+                    {
+                        request.MarketItem = marketItem;
+                        request.Created = DateTime.Now;
+                        request.Status = ItemRequestStatus.New;
 
-                    await _uow.ItemRequestRepository.Create(request);
-                    await _uow.SaveAsync();
+                        await _uow.ItemRequestRepository.Create(request);
+                        await _uow.SaveAsync();
 
-                    return RedirectToAction("Successfull");
+                        return RedirectToAction("Successfull");
 
+                    }
                 }
-            }
-            ViewData["ErrorMessage"] = "There was an error when making the request.";
+                ViewData["ErrorMessage"] = "There was an error when making the request.";
 
-            return View(request);
+                return View(request);
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = "There was an error when making the request.";
+
+                return View(request);
+            }
+            
         }
 
 

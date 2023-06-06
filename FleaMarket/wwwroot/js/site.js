@@ -24,3 +24,7 @@ function previewImage(url) {
 function onCloseImagePreview(){
     $('#image-preview-modal').remove();
 }
+
+function updateMarketItems() {
+    $('#market-items-form').submit();
+}

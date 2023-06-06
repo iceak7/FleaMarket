@@ -12,5 +12,6 @@ namespace FleaMarket.Infrastructure.DataAccess
         public DbSet<InspirationItem> InspirationItems { get; set; }
         public DbSet<ItemCategory> ItemCategories { get; set; }
         public DbSet<MarketItem> MarketItems { get; set; }
+        public DbSet<ItemRequest> ItemRequests { get; set; }
     }
 }

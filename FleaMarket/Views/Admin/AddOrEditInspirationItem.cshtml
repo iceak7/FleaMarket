@@ -1,21 +1,21 @@
 ﻿@model InspirationItemViewModel
 
-<a asp-action="InspirationItems" asp-controller="Admin"><i class="fas fa-arrow-left"></i> Go Back</a>
+<a asp-action="InspirationItems" asp-controller="Admin"><i class="fas fa-arrow-left"></i> Gå tillbaks</a>
 <div class="row mt-3">
     @if (Model.Id == null)
     {
-        <h3>Add an inspiration item</h3>
+        <h3>Ladda upp en inspirations-bild</h3>
     }
     else
     {
-        <h3>Edit inspiration item</h3>
+        <h3>Redigera en inspirations-bild</h3>
     }
     <div class="col">
         <form class="row g-3" asp-controller="admin" asp-action="AddOrEditInspirationItem">
             <input type="hidden" asp-for="Id"/>
             <div class="mb-3 input-group">
                 <div class="col-12">
-                    <h5>Image</h5>
+                    <h5>Bild</h5>
                 </div>
                 <div class="inspiration-image-preview col-12" id="inspiration-image-preview">
                     @if(Model.Id != null)
@@ -29,12 +29,12 @@
                     }
                 </div>
                 <div class="col-3-md mb-3">
-                    <label class="form-label" for="inspirationImageInput"> Upload Image</label>
+                    <label class="form-label" for="inspirationImageInput">Ladda upp en bild</label>
                     <input id="inspirationImageInput" type="file" class="form-control" />
                 </div>
             </div>
             <div class="mb-3 col-md-9">
-                <label asp-for="Title" class="form-label">Title(optional)</label>
+                <label asp-for="Title" class="form-label">Titel(valfritt)</label>
                 <input type="text" asp-for="Title" class="form-control">
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
@@ -45,12 +45,12 @@
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="mb-3 col-12">
-                <label asp-for="Description" class="form-label">Description(optional)</label>
+                <label asp-for="Description" class="form-label">Beskrivning(valfritt)</label>
                 <textarea class="form-control" asp-for="Description" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="mb-3 col-12">
-                <label class="form-label" for="inspirationMarketItemsInput">Link market items</label>
+                <label class="form-label" for="inspirationMarketItemsInput">Länka föremål till försäljning</label>
                 <ul class="list-group list-group-horizontal add-market-item-list" id="inspirationMarketItemsInput">
                     @foreach (var item in Model.MarketItemOptions)
                     {
@@ -74,11 +74,11 @@
             <div class="col-12">
                 @if (Model.Id != null)
                 {
-                    <button type="submit" class="btn btn-success w-100">Update item <i class="fas fa-save"></i></button>
+                    <button type="submit" class="btn btn-success w-100">Uppdatera <i class="fas fa-save"></i></button>
                 }
                 else
                 {
-                    <button type="submit" class="btn btn-success w-100">Add item <i class="fas fa-plus"></i></button>
+                    <button type="submit" class="btn btn-success w-100">Ladda upp <i class="fas fa-plus"></i></button>
                 }
             </div>
         </form>

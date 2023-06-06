@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Localization;
+using FleaMarket.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     );
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IOpenApiService, OpenApiService>();
+
+builder.Services.AddHttpClient();
 
 builder.Services.AddControllersWithViews();
 

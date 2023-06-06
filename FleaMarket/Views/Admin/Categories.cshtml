@@ -5,12 +5,12 @@
 
 <div class="row">
     <div class="col-md-6">
-        <h3>Categories</h3>
+        <h3>Kategorier</h3>
         <table class="table">
             <thead>
                 <tr>
                     <th scope="col">
-                        Name
+                        Kategori
                     </th>
                     <th scope="col">
 
@@ -47,9 +47,9 @@
         </table>
     </div>
     <div class="col-md-6">
-        <h3>Add New Category</h3>
+        <h3>Lägg till en ny kategori</h3>
             <form asp-controller="Admin" asp-action="AddCategory" method="post">
-                <label for="nameInput" class="form-label">Name</label>
+                <label for="nameInput" class="form-label">Kategori</label>
                 @if (validationError != null)
                 {
                     <input type="text" name="Name" id="nameInput" class="form-control is-invalid" />
@@ -61,7 +61,7 @@
                 {
                     <input type="text" name="Name" id="nameInput" class="form-control" />
                 }
-                <button type="submit" class="btn btn-primary mt-3">Add Category</button>
+                <button type="submit" class="btn btn-primary mt-3">Lägg till kategori</button>
             </form>
         </div>
 </div>

@@ -118,14 +118,22 @@ namespace FleaMarket.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("PhoneNr")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MarketItemId");
 
-                    b.ToTable("ItemRequest");
+                    b.ToTable("ItemRequests");
                 });
 
             modelBuilder.Entity("FleaMarket.Models.MarketItem", b =>
@@ -143,6 +151,9 @@ namespace FleaMarket.Migrations
                     b.Property<decimal?>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("PublicationDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

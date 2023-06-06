@@ -31,11 +31,25 @@ namespace FleaMarket.Infrastructure.Repositories
             return items;
         }
 
-        public async Task<IEnumerable<MarketItem>> GetPublishedItems()
+        public async Task<IEnumerable<MarketItem>> GetAllItems(int? categoryid, string search, ItemStatus? itemStatus)
         {
-            var result = await _appDbContext.MarketItems.Where(x => x.Status == ItemStatus.Published).Include(x => x.Images).Include(x => x.Categories).ToListAsync();
+             IQueryable<MarketItem> result = _appDbContext.MarketItems.Include(x => x.Images).Include(x => x.Categories);
 
-            return result;
+            if(itemStatus != null)
+            {
+                result = result.Where(x => x.Status == itemStatus);
+            }
+            if(categoryid != null)
+            {
+                result = result.Where(x => x.Categories.FirstOrDefault(c => c.Id == categoryid) != null);
+            }
+            if (search != null)
+            {
+                result = result.Where(x => x.Title.Contains(search));
+            }
+
+
+            return await result.ToListAsync();
         }
 
     }

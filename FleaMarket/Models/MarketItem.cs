@@ -14,8 +14,8 @@ namespace FleaMarket.Models
         [Range(0, 1000000)]
         [Precision(18, 2)]
         public decimal? Price { get; set; }
-
         public ItemStatus Status { get; set; }
+        public DateTime? PublicationDate { get; set; }
 
 
         public ICollection<ItemCategory> Categories { get; set; }

@@ -1,29 +1,96 @@
-﻿@model IEnumerable<MarketItem>
+﻿@model MarketItemsViewModel
 
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 market-item-gallery g-2 mb-3">
-    @foreach (var item in Model)
-    {
-        <div class="col">
-            <a asp-controller="Market" asp-action="Item" asp-route-id="@item.Id">
-                <div class="market-item">
-                    <div class="market-item-grid-image-container">
-                        @if (item.Images != null && item.Images?.Count > 0)
-                        {
-                            <img src="@item.Images.FirstOrDefault().Url" class="market-item-image" alt="Item Image">
-                        }
-                        else
-                        {
-                            <p>Ingen Bild</p>
-                        }
-                    </div>
-                    <div class="market-item-body">
-                        <h5 class="market-item-title">@item.Title</h5>
-                        <div class="market-item-description">@item.Description </div>
-                        <div class="market-item-price">@(item.Price != null ? item.Price + " kr" : "")</div>
-                    </div>
+<div class="row market-items-filter-row">
+    <div class="col-12 market-item-filter-col">
+        <form method="get" asp-controller="Market" asp-action="Index" class="row g-2" id="market-items-form">
+            <input type="hidden" name="page" value="@Model.Page"/>
+            <div class="col-6 col-md-4">
+                <label class="form-label" asp-for="Category">Kategori</label>
+                @Html.DropDownListFor(x=>x.Category, Model.Categories.Select(x=> new SelectListItem(){Value = x.Id.ToString(), Text = x.Name}),"Alla", new { @class = "form-select", @onchange = "updateMarketItems()" })
+            </div>
+            <div class="col-6 col-md-4">
+                <label class="form-label" asp-for="SortOrder">Sortera</label>
+                <select asp-for="SortOrder" class="form-select" onchange="updateMarketItems()">
+                    <option value="">Välj sorteringsordning</option>
+                    <option value="newest">Nyast</option>
+                    <option value="oldest">Äldst</option>
+                    <option value="name">Namn</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4">
+                <label class="form-label" asp-for="Search">Sök</label>
+                <div class="input-group search-input">
+                    <input asp-for="Search" class="form-control" />
+                    <span class="input-group-text"><button type="submit" class="btn btn-primary ">Sök</button></span>
                 </div>
-            </a>
 
-        </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 market-item-gallery g-2 mb-3">
+    
+    @if(Model.Items?.Count() > 0)
+    {
+        foreach (var item in Model.Items)
+        {
+
+            <div class="col">
+                <a asp-controller="Market" asp-action="Item" asp-route-id="@item.Id">
+                    <div class="market-item">
+                        <div class="market-item-grid-image-container">
+                            @if (item.Images != null && item.Images?.Count > 0)
+                            {
+                                <img src="@item.Images.FirstOrDefault().Url" class="market-item-image" alt="Item Image">
+                            }
+                            else
+                            {
+                                <p>Ingen Bild</p>
+                            }
+                        </div>
+                        <div class="market-item-body">
+                            <h5 class="market-item-title">@item.Title</h5>
+                            <div class="market-item-description">@item.Description </div>
+                            <div class="market-item-price">@(item.Price != null ? item.Price + " kr" : "")</div>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        }
+    }
+    else
+    {
+        <p>Inga matchande föremål.</p>
     }
 </div>
+<nav >
+    <ul class="pagination">
+        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+            <a class="page-link" asp-controller="Market" asp-action="Index" asp-route-page="@(Model.Page-1)"  asp-route-sortorder="@Model.SortOrder" asp-route-category="@Model.Category" asp-route-search="@Model.Search">Previous</a>
+        </li>
+
+        @for (int i = 1; i <= Model.PagesCount; i++)
+        {
+            if (Model.Page == i)
+            {
+                <li class="page-item active")>
+                    <span class="page-link">@i</span>
+                </li>
+            }
+            else
+            {
+                <li class="page-item" )>
+                    <a class="page-link" asp-controller="Market" asp-action="Index" asp-route-page="@i" asp-route-sortorder="@Model.SortOrder" asp-route-category="@Model.Category" asp-route-search="@Model.Search">@i</a>
+                </li>
+            }
+
+        }
+
+        <li class="page-item @((Model.Page == Model.PagesCount || Model.PagesCount == 0) ? "disabled" : "")">
+            <a class="page-link" asp-controller="Market" asp-action="Index" asp-route-page="@(Model.Page+1)" asp-route-sortorder="@Model.SortOrder" asp-route-category="@Model.Category" asp-route-search="@Model.Search">Next</a>
+        </li>
+    </ul>
+</nav>
+

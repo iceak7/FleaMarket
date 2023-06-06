@@ -1,8 +1,7 @@
 ﻿@model IEnumerable<InspirationItem>
 
-<h3>Inspiration items</h3>
+<h3>Inspirations-bilder</h3>
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 inspiration-items-gallery g-2 mb-3">
-
 
         @foreach (var item in Model)
     {
@@ -39,6 +38,6 @@
 </div>
 <div class="row">
     <div class="col">
-        <a asp-controller="Admin" asp-action="AddOrEditInspirationItem" class="btn btn-success">Add an inspiration item <i class="fas fa-plus"></i></i></a>
+        <a asp-controller="Admin" asp-action="AddOrEditInspirationItem" class="btn btn-success">Ny inspirations-bild <i class="fas fa-plus"></i></i></a>
     </div>
 </div>
