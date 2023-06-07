@@ -30,6 +30,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IOpenApiService, OpenApiService>();
+builder.Services.AddScoped<IGoogleService, GoogleService>();
 
 builder.Services.AddHttpClient();
 

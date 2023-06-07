@@ -1,5 +1,27 @@
 ﻿@model ItemViewModel
 
+<div class="modal" id="add-or-edit-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Översättning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-translate-modal"></button>
+            </div>
+            <div id="text-generation-modal-body" class="modal-body">
+                <div class="d-flex">
+                    <span>Översätter...</span>
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button disabled id="accept-text-generation" type="button" class="btn btn-primary">Acceptera ny beskrivning</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <a asp-action="MarketItems" asp-controller="Admin"><i class="fas fa-arrow-left"></i> Gå tillbaks</a>
 
 <div class="row mt-3" id="add-or-edit-content">
@@ -32,7 +54,8 @@
                 <label asp-for="Description" class="form-label">Beskrivning</label>
                 <textarea class="form-control" asp-for="Description" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
-                <button class="btn btn-secondary btn-sm" type="button" onclick="translateDescriptionToEnglish()">Översätt till engelska</button>
+                <button class="btn btn-secondary btn-sm extra-function-button" id="translate-button" type="button" onclick="translateDescriptionToEnglish()">Översätt till engelska</button>
+                <button class="btn btn-secondary btn-sm extra-function-button" id="generate-title-button" type="button" onclick="generateTitle()">Generera titel baserad på beskrivningen</button>
             </div>
             <div class="mb-3 col-md-3">
                 <label asp-for="Status" class="form-label">Status</label>
@@ -125,6 +148,8 @@
                             $("#image-gallery-container-" + data.id).click(function (e) {
                                 previewImage(data.url);
                             });
+                        } else {
+                            insertErrorMessage(data.message);
                         }
                     },
                     error: function(data){
@@ -178,39 +203,33 @@
         }
 
         function translateDescriptionToEnglish(){
+
+            $("#translate-button").prop('disabled', true);
+
+            $("#close-translate-modal").click(function () {
+                $("#translate-button").prop('disabled', false);
+            })
+
             var text = $("#Description").val();
 
-            $('body').prepend(`<div class="modal" id="add-or-edit-modal">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Översättning</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div id="text-generation-modal-body" class="modal-body">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <span>Översätter...</span>
-              </div>
-              <div class="modal-footer">
-                <button disabled id="accept-text-generation" type="button" class="btn btn-primary">Lägg till i beskrivningen</button>
-              </div>
-            </div>
-          </div>
-        </div>`)
+            $("#text-generation-modal-body").html(`<div class="d-flex">
+                            <span>Översätter...</span>
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                        </div>`);
 
+            $('#accept-text-generation').prop('disabled', true);
 
             var myModal = new bootstrap.Modal(document.getElementById('add-or-edit-modal'), {
-                keyboard: false
+                keyboard: false,
+                backdrop: 'static'
             })
 
             myModal.show();
 
+
             var file = new FormData();
             file.append('text', text);
 
-            console.log(file);
 
             $.ajax({
                 method: "post",
@@ -223,16 +242,79 @@
                     console.log(data);
                     if(data.success == true){
                         var generatedText = data.message.trim();
-                        var newText = text + "\n ---------------------- \n" + generatedText;
+                        var newText = text + "\n****\n" + generatedText;
                         console.log(newText);
                         $('#text-generation-modal-body').html(`<p class='fw-bold'>Ny beskrivning:</p> <p style='white-space:pre-line'>${newText}</p>`);
                         $('#accept-text-generation').prop('disabled', false);
+                        $('#accept-text-generation').click(function(){
+                            $('#Description').val(newText);
+                            myModal.hide();
+                        })
+                        
+                    }
+                    else{
+                        $('#text-generation-modal-body').html(`<p>Ett fel uppstod</p>`);
                     }
                 },
                 error: function (data) {
-                    console.log(data);
+                    insertErrorMessage("Ett fel uppstod.");
                 }
             });
+        }
+
+        function generateTitle(){
+
+            
+            var text = $("#Description").val();
+
+            if(text.length > 0)
+            {
+                $('#generate-title-button').prop('disabled', true);
+                $('#generate-title-button').html(`  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Genererar...`
+                )
+                var description = text.trim();
+
+                var end = text.indexOf("****");
+
+                if (end > 0) {
+                    description = text.substring(0, end).trim()
+                }
+
+
+                var file = new FormData();
+                file.append('description', description);
+
+                $.ajax({
+                    method: "post",
+                    url: "/GenerateContent/GenerateTitle/",
+                    data: file,
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success: function (data) {
+                        $('#generate-title-button').prop('disabled', false);
+                        $('#generate-title-button').html("Generera titel baserad på beskrivningen")
+
+                        if (data.success == true) {
+                            var generatedText = data.message.trim();
+
+                            $('#Title').val(generatedText);
+                        }
+                        else {
+                            insertErrorMessage("Ett fel uppstod.");
+                        }
+                    },
+                    error: function (data) {
+                        insertErrorMessage("Ett fel uppstod.");
+                        $('#generate-title-button').prop('disabled', false);
+                        $('#generate-title-button').html("Generera titel baserad på beskrivningen")
+                    }
+                });
+            }
+
+
+
         }
 
 

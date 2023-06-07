@@ -375,7 +375,7 @@ namespace FleaMarket.Controllers
                     var extension = Path.GetExtension(image.FileName).ToUpper();
                     var allowedExtensions = new string[] { ".JPG", ".JPEG", ".PNG", ".HEIC" };
 
-                    if (image.Length < 5*1024*1024 && allowedExtensions.Contains(extension))
+                    if (image.Length < 6*1024*1024 && allowedExtensions.Contains(extension))
                     {
                         string folder = "images/uploads/";
 
@@ -392,7 +392,7 @@ namespace FleaMarket.Controllers
 
                 }
 
-                return new JsonResult(new { Success = false });
+                return new JsonResult(new { Success = false, Message = "Bilden är för stor eller är inte i formatet JPG, JPEG, PNG eller HEIC." });
             }
             catch (Exception ex)
             {

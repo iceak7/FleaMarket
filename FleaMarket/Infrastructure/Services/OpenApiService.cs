@@ -1,5 +1,8 @@
 ﻿using OpenAI_API;
+using OpenAI_API.Chat;
 using OpenAI_API.Completions;
+using OpenAI_API.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FleaMarket.Infrastructure.Services
 {
@@ -8,14 +11,42 @@ namespace FleaMarket.Infrastructure.Services
         private readonly IHttpClientFactory _httpClientFactory;
         public OpenApiService(IHttpClientFactory httpClientFactory)
         {
-
             _httpClientFactory = httpClientFactory;
-
         }
 
-        public Task<string> GenereateTitle(string description)
+        public async Task<string> GenerateTitle(string description, IEnumerable<string> titles)
         {
-            throw new NotImplementedException();
+            try
+            {
+                OpenAIAPI api = new OpenAIAPI(APIAuthentication.LoadFromEnv());
+                //api.HttpClientFactory = _httpClientFactory;
+
+                var previousTitles = string.Join(",", titles.Select(x => "\"" + x +"\""));
+
+                var prompt = "Svara med en lämplig titel på ett föremålet baserad på följande beskrivning av föremålet: \"" + description + "\". Här är titlarna på de andra föremålen: " + previousTitles + ". Svara endast med en titel.";
+
+                ChatRequest chatRequest = new ChatRequest()
+                {
+                    Model = Model.ChatGPTTurbo,
+                    Messages = new ChatMessage[]
+                    {   
+                        new ChatMessage(ChatMessageRole.User, prompt )
+                    },
+                    Temperature = 0.05,
+                    MaxTokens = 500,
+                };
+
+                var res = await api.Chat.CreateChatCompletionAsync(chatRequest);
+
+                var title = res.ToString().Trim('"');
+
+                return title;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         public Task<string> RefineText(string text)
@@ -30,17 +61,21 @@ namespace FleaMarket.Infrastructure.Services
                 OpenAIAPI api = new OpenAIAPI(APIAuthentication.LoadFromEnv());
                 //api.HttpClientFactory = _httpClientFactory;
 
-                CompletionRequest completionRequest = new CompletionRequest()
+                ChatRequest chatRequest = new ChatRequest()
                 {
-                    Model = "text-curie-001",
-                    Prompt = "Översätt följande text till engelska: \"" + text + "\"" ,
-                    Temperature = 0.3,
-                    MaxTokens = 500
+                    Model = Model.ChatGPTTurbo,
+                    Messages = new ChatMessage[] 
+                    {   new ChatMessage(ChatMessageRole.User, "Översätt följande text till engelska: \"Det här är en beskrivning.\""),
+                        new ChatMessage(ChatMessageRole.Assistant, "This is a description."),
+                        new ChatMessage(ChatMessageRole.User, "Översätt följande text till engelska: \"" + text + "\"" )
+                    },
+                    Temperature = 0.2,
+                    MaxTokens = 500     ,
                 };
 
-                var res = await api.Completions.CreateCompletionAsync(completionRequest);
+                var res = await api.Chat.CreateChatCompletionAsync(chatRequest);
 
-                return res.Completions[0].Text;
+                return res.Choices[0].Message.Content;
             }
             catch(Exception ex)
             {

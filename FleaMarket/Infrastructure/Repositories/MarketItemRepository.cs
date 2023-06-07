@@ -52,5 +52,9 @@ namespace FleaMarket.Infrastructure.Repositories
             return await result.ToListAsync();
         }
 
+        public async Task<IEnumerable<string>> GetAllTitles()
+        {
+            return await _appDbContext.MarketItems.Select(x=>x.Title).ToListAsync();
+        }
     }
 }

@@ -4,6 +4,6 @@
     {
         Task<string> TranslateToEn(string text);
         Task<string> RefineText(string text);
-        Task<string> GenereateTitle(string description);
+        Task<string> GenerateTitle(string description, IEnumerable<string> titles);
     }
 }
