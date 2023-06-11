@@ -52,6 +52,13 @@ namespace FleaMarket.Infrastructure.Repositories
             return await result.ToListAsync();
         }
 
+        public async Task<IEnumerable<MarketItem>> GetLastPublished(int number)
+        {
+            var items = await _appDbContext.MarketItems.Include(x => x.Images).Where(x=>x.Status == ItemStatus.Published).OrderByDescending(x=>x.PublicationDate).Take(number).ToListAsync();
+
+            return items;
+        }
+
         public async Task<IEnumerable<string>> GetAllTitles()
         {
             return await _appDbContext.MarketItems.Select(x=>x.Title).ToListAsync();

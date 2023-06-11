@@ -3,8 +3,6 @@ using FleaMarket.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace FleaMarket.Controllers
 {

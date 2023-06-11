@@ -1,6 +1,8 @@
 ﻿@model InspirationItem
+<div class="mt-3">
+    <a asp-action="" asp-controller="Inspiration" class="mt-3"><i class="fas fa-arrow-left"></i> Alla bilder</a>
+</div>
 
-<a asp-action="" asp-controller="Inspiration"><i class="fas fa-arrow-left"></i> Alla bilder</a>
 <div class="inspiration-view-item mt-3 @(Model.Title == null && Model.Description == null ? "justify-content-center" : "")">
     <div class="inspiration-view-image">
         <img src="@Model.Image.Url" />

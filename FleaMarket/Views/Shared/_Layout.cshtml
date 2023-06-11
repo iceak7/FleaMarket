@@ -14,7 +14,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
             <div class="container-fluid">
                 <a class="navbar-brand titleFont"  asp-controller="Home" asp-action="Index">Rosies Prylar</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -48,7 +48,7 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="@(ViewData["Title"]?.ToString() != "Home Page" ? "container" : "container-fluid container-home")">
         <main role="main" class="pb-3">
             @await Html.PartialAsync("PartialViews/Messages/_SuccessMessage")
             @await Html.PartialAsync("PartialViews/Messages/_ErrorMessage")

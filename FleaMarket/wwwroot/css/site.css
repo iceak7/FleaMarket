@@ -195,16 +195,128 @@ footer {
     justify-content:end;
     width:100%;
 }
-/*/ ------------------ADMIN PAGE --------------------/*/
 
+
+/*/ ------------------HOME PAGE --------------------/*/
+.home-row {
+    --bs-gutter-x:0;
+}
+.container-fluid.container-home {
+    padding: 0px;
+}
+.home-banner {
+    width: 100%;
+    height: 30vh;
+    background-image: url("../images/banner.JPG");
+    background-position: center;
+    background-size: cover;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.home-banner-text{
+    background-color: rgba(255, 255, 255, 0.76);
+    color:black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+    .home-banner-text h1{
+        margin:0;
+        font-weight:normal;
+        font-size:50px;
+    }
+
+.home-welcome-text {
+    width:90%;
+    text-align:center;
+    margin:auto;
+    padding:80px 0px;
+    max-width:1000px;
+}
+
+.home-welcome-text-title{
+    margin-bottom:20px;
+}
+
+.home-welcome-text-text{
+    font-size: 18px;
+}
+
+.home-item-preview{
+    background-color:white;
+    text-align:center;
+    padding:60px 20px;
+}
+
+.home-item-preview-title {
+    margin-bottom:20px;
+}
+.home-item-preview-container {
+    list-style:none;
+    display: flex;
+    margin-top: 20px;
+    flex-direction: row;
+    overflow-x: auto;
+    white-space:nowrap;
+    width: auto;
+    justify-content:center;
+    padding-bottom:3px;
+}
+.home-item-preview-container li{
+    text-decoration:none;
+}
+.home-market-item {
+    width: 250px;
+    background-color: #e9e9e9;
+    border: 1px solid #d1d1d1;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.home-item-preview-container a:hover {
+
+    text-decoration: none;
+    color: black;
+    opacity: 0.7;
+}
+
+.home-more-info{
+    min-height:300px;
+    text-align:center;
+    padding:60px 20px;
+}
+
+.home-more-info-row {
+    display: flex;
+    max-width: 1200px;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.home-more-info-item {
+    background-color: white;
+    padding: 12px;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+    border-radius:5px;
+}
+/*/ ------------------ADMIN PAGE --------------------/*/
 .admin-market-items-row {
     padding: 10px 0px;
     margin-left: 0px;
     margin-right: 0px;
+    margin-top:10px;
 }
 
 .admin-dashboard .row {
     --bs-gutter-x: 0;
+}
+
+.admin-dashboard{
+    margin-top:20px;
 }
 
 .item-requests-dashboard h3{
@@ -664,7 +776,7 @@ footer {
 
 .market-item-display-container {
     display: flex;
-    justify-content:center;
+    justify-content: center;
 }
 
 .market-item-display-info {
@@ -851,10 +963,37 @@ footer {
         margin-bottom:5px;
     }
 }
-
+@media (max-width: 1390px) {
+    .home-item-preview-container {
+        justify-content: start;
+        padding-left:0;
+    }
+}
+@media (max-width: 992px){
+    .home-more-info-item {
+        max-width: 500px;
+        margin: auto;
+        margin-top: 20px;
+    }
+    .home-more-info-row{
+        margin-top:0px;
+    }
+}
 @media (max-width: 768px) {
     .grid-sizer, .grid-item {
         width: 49.7%;
+    }
+
+    .home-banner-text {
+        padding: 20px;
+    }
+
+        .home-banner-text h1 {
+            font-size: 40px;
+        }
+
+    .home-welcome-text-text {
+        font-size: 14px;
     }
 }
 

@@ -23,7 +23,7 @@ namespace FleaMarket.Infrastructure.Services
 
                 var previousTitles = string.Join(",", titles.Select(x => "\"" + x +"\""));
 
-                var prompt = "Svara med en lämplig titel på ett föremålet baserad på följande beskrivning av föremålet: \"" + description + "\". Här är titlarna på de andra föremålen: " + previousTitles + ". Svara endast med en titel.";
+                var prompt = "Svara med en lämplig titel på ett föremålet baserad på följande beskrivning av föremålet: \"" + description + "\". Här är titlarna på de andra föremålen: " + previousTitles + ". Svara endast med en titel och på svenska.";
 
                 ChatRequest chatRequest = new ChatRequest()
                 {

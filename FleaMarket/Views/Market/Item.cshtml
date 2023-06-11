@@ -1,6 +1,9 @@
 ﻿@model MarketItem
 
-<a asp-action="" asp-controller="Market"><i class="fas fa-arrow-left"></i> Alla föremål</a>
+<div class="mt-3 market-item-go-back">
+    <a asp-action="" asp-controller="Market" class="mt-3"><i class="fas fa-arrow-left"></i> Alla föremål</a>
+</div>
+
 <div class="market-item-display-container mt-3">
 
         @if (Model.Images?.Count >0)

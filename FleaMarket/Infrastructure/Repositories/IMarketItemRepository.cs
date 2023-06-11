@@ -7,5 +7,6 @@ namespace FleaMarket.Infrastructure.Repositories
         Task<IEnumerable<MarketItem>> GetAllItems(int? categoryid, string search, ItemStatus? itemStatus);
         Task<List<MarketItem>> GetByIds(IEnumerable<int> ids);
         Task<IEnumerable<string>> GetAllTitles();
+        Task<IEnumerable<MarketItem>> GetLastPublished(int number);
     }
 }

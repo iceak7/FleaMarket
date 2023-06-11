@@ -1,4 +1,6 @@
-﻿using FleaMarket.Models.ViewModels;
+﻿using FleaMarket.Infrastructure;
+using FleaMarket.Models.ViewModels;
+using FleaMarket.Models.ViewModels.Home;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,15 +9,20 @@ namespace FleaMarket.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IUnitOfWork _uow;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork uow)
         {
             _logger = logger;
+            _uow = uow;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var viewModel = new HomeViewModel();
+            viewModel.MarketItems = await _uow.MarketItems.GetLastPublished(5);
+
+            return View(viewModel);
         }
 
         public IActionResult Privacy()
