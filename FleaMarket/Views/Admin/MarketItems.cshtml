@@ -33,65 +33,74 @@
             </div>
         </form>
     </div>
-    <div class="col-12 mt-2">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">
-                        Titel
-                    </th>
-                    <th scope="col">
-                        Pris
-                    </th>
-                    <th scope="col">
-                        Status
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Items?.Count() > 0)
-                {
-                    @foreach (var item in Model.Items)
+    <div class="col-12 mt-2 mb-1">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            Titel
+                        </th>
+                        <th scope="col">
+                            Pris
+                        </th>
+                        <th scope="col">
+                            Status
+                        </th>
+                        <th scope="col">
+                            Publicerad
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Items?.Count() > 0)
+                    {
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    @item.Title
+                                </td>
+                                <td>
+                                    @item.Price
+                                </td>
+                                <td>
+                                    @item.Status
+                                </td>
+                                <td>
+                                    @(item.PublicationDate.HasValue ? item.PublicationDate.Value.ToString("g") : "-")
+                                </td>
+                                <td class="shrink">
+                                    <ul class="table-buttons">
+                                        <li> <a asp-controller="Admin" asp-action="AddOrEditItem" asp-route-id="@item.Id" class="btn btn-outline-warning"><i class="far fa-edit"></i></a></li>
+                                        <li>
+                                            <span>
+                                                <form asp-controller="Admin" asp-action="DeleteItem" class="table-cell-form">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" onclick="return confirm('Confirm deleting of item')" class="btn btn-outline-danger table-cell-form-button">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
                             <td>
-                                @item.Title
-                            </td>
-                            <td>
-                                @item.Price
-                            </td>
-                            <td>
-                                @item.Status
-                            </td>
-                            <td class="shrink">
-                                <ul class="table-buttons">
-                                    <li> <a asp-controller="Admin" asp-action="AddOrEditItem" asp-route-id="@item.Id" class="btn btn-outline-warning"><i class="far fa-edit"></i></a></li>
-                                    <li>
-                                        <span>
-                                            <form asp-controller="Admin" asp-action="DeleteItem" class="table-cell-form">
-                                                <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" onclick="return confirm('Confirm deleting of item')" class="btn btn-outline-danger table-cell-form-button">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                        </span>
-                                    </li>
-                                </ul>
+                                <p>Inga matchningar</p>
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td>
-                            <p>Inga matchningar</p>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+        
     </div>
     <div class="col-6">
         <nav>

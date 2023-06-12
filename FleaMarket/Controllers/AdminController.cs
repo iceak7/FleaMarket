@@ -1,6 +1,7 @@
 ﻿using FleaMarket.Infrastructure;
 using FleaMarket.Models;
 using FleaMarket.Models.Items;
+using FleaMarket.Models.ViewModels;
 using FleaMarket.Models.ViewModels.Admin;
 using FleaMarket.Models.ViewModels.Market;
 using Microsoft.AspNetCore.Authorization;
@@ -19,38 +20,93 @@ namespace FleaMarket.Controllers
             _uow = uow;
             _webHostEnvironment = webHostEnvironment;
         }
-        public async Task<IActionResult> Index()
+
+        //Dashboard
+        [HttpGet]
+        public async Task<IActionResult> Index(ItemRequestStatus? status)
         {
-            var requests = await _uow.ItemRequestRepository.GetAll();
-
-            var item = new DashboardViewModel()
+            try
             {
-                ItemRequests = requests
-            };
+                var requests = await _uow.ItemRequestRepository.GetItemByStatus(status);
 
-            return View(item);
+                var item = new DashboardViewModel()
+                {
+                    ItemRequests = requests.OrderByDescending(x => x.Status),
+                    Status = status
+                };
+
+                return View(item);
+            }
+            catch
+            {
+                return View("Error");
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> UpdateRequestStatus(int id, ItemRequestStatus status)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var itemRequest = await _uow.ItemRequestRepository.GetById(id);
+
+                    if (itemRequest != null)
+                    {
+                        if (itemRequest.Status == status)
+                        {
+                            return new JsonResult(new { Success = true });
+                        }
+
+                        itemRequest.Status = status;
+                        await _uow.SaveAsync();
+
+                        return new JsonResult(new { Success = true });
+                    }
+
+                    return new JsonResult(new { Success = false });
+                }
+
+                return new JsonResult(new { Success = false });
+            }
+            catch (Exception)
+            {
+
+                return new JsonResult(new { Success = false });
+            }
+
         }
 
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Users()
         {
-            var users = await _uow.UserRepository.GetAll();
+            try
+            {
+                var users = await _uow.UserRepository.GetAll();
 
-            var userViewModels = users.Select( x => new UserViewModel
+                var userViewModels = users.Select(x => new UserViewModel
                 {
                     Email = x.Email,
                     Id = x.Id,
                     UserName = x.UserName,
                     Role = _uow.UserRepository.GetRoleByUser(x).Result
                 }
-            );
+                );
 
-            return View(userViewModels);
+                return View(userViewModels);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Ett fel uppstod.";
+                return View("Error");
+            }
+
         }
 
         [Authorize(Roles = "SuperAdmin")]
         [HttpPost]
-        public async Task<IActionResult>EditUserRole(string userId, string roleSelected)
+        public async Task<IActionResult> EditUserRole(string userId, string roleSelected)
         {
             try
             {
@@ -59,30 +115,38 @@ namespace FleaMarket.Controllers
                 if (res)
                 {
                     if (roleSelected != null)
-                        TempData["SuccessMessage"] = $"Successfully set role to '{roleSelected}'.";
+                        TempData["SuccessMessage"] = $"Roll uppdaterad till '{roleSelected}'.";
                     else
-                        TempData["SuccessMessage"] = $"Successfully removed role.";
+                        TempData["SuccessMessage"] = $"Rollen togs bort.";
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Unable to set role";
+                    TempData["ErrorMessage"] = "Det gick inte att skapa rollen.";
                 }
 
             }
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "Error seting role";
+                TempData["ErrorMessage"] = "Ett fel uppstod.";
             }
 
             return RedirectToAction("Users");
 
         }
-
+        [HttpGet]
         public async Task<IActionResult> Categories()
         {
-            var categories = await _uow.ItemCategories.GetAll();
+            try
+            {
+                var categories = await _uow.ItemCategories.GetAll();
 
-            return View(categories);
+                return View(categories);
+            }
+            catch (Exception ex)
+            {
+
+                return View("Error");
+            }
         }
 
         [HttpPost]
@@ -103,9 +167,9 @@ namespace FleaMarket.Controllers
 
                 return RedirectToAction("Categories");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error when adding category.";
+                TempData["ErrorMessage"] = "Ett fel uppstod vid skapandet av kategorin.";
 
                 return RedirectToAction("Categories");
             }
@@ -125,147 +189,172 @@ namespace FleaMarket.Controllers
                         await _uow.ItemCategories.Delete(item);
                         await _uow.SaveAsync();
 
-                        TempData["SuccessMessage"] = "Successfully deleted category.";
+                        TempData["SuccessMessage"] = "Raderingen av kategorin lyckades.";
 
                         return RedirectToAction("Categories");
                     }
                 }
-                TempData["ErrorMessage"] = "Unable to delete category.";
+                TempData["ErrorMessage"] = "Det gick inte att radera kategorin.";
                 return RedirectToAction("Categories");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error when deleting category.";
+                TempData["ErrorMessage"] = "Ett el uppstod..";
                 return RedirectToAction("Categories");
             }
-               
+
         }
 
         [HttpPost]
         public async Task<IActionResult> EditCategory(int? id, ItemCategory item)
         {
-            if (ModelState.IsValid)
+            try
             {
-                if (id != null)
+                if (ModelState.IsValid)
                 {
-                    var cat = await _uow.ItemCategories.GetById(id.Value);
-
-                    if(cat != null)
+                    if (id != null)
                     {
-                        cat.Name = item.Name;
-                        await _uow.SaveAsync();
+                        var cat = await _uow.ItemCategories.GetById(id.Value);
 
-                        return Json( new {Success = true, Message = "Successfully updated category" } );
+                        if (cat != null)
+                        {
+                            cat.Name = item.Name;
+                            await _uow.SaveAsync();
+
+                            return Json(new { Success = true, Message = "Uppdateringen av kategorin lyckades." });
+                        }
                     }
+
+                    return Json(new { Success = false, Message = "Ett fel uppstod." });
                 }
 
-                return Json(new { Success = false, Message = "Error when updating category" });
+                var mes = "Ett fel uppstod vid uppdateringen av kategorin. " + ModelState.Values.SelectMany(x => x.Errors.Select(e => e.ErrorMessage)).Aggregate("", (current, s) => current + (s + " ")); ;
+                return Json(new { Success = false, Message = mes });
+            }
+            catch (Exception ex)
+            {
+                var mes = "Ett fel uppstod vid uppdateringen av kategorin. ";
+                return Json(new { Success = false, Message = mes });
             }
 
-            var mes = "Error when updating category. "+ ModelState.Values.SelectMany(x => x.Errors.Select(e => e.ErrorMessage)).Aggregate("", (current, s) => current + (s + " ")); ;
-            return Json(new { Success = false, Message = mes });
 
         }
 
-        [HttpGet] 
+        [HttpGet]
         public async Task<IActionResult> MarketItems(int? category, string sortOrder, string search, int? page, ItemStatus? status)
         {
-            var items = await _uow.MarketItems.GetAllItems(category, search, status);
-
-            var model = new MarketItemsViewModel()
+            try
             {
-                Search = search,
-                SortOrder = sortOrder,
-                Category = category,
-            };
+                var items = await _uow.MarketItems.GetAllItems(category, search, status);
 
-            if (items?.Count() > 0)
-            {
-                model.PagesCount = (items.Count() - 1) / 10 + 1;
-
-                int pageToUse = page != null ? page.Value : 1;
-
-                if (pageToUse > model.PagesCount)
-                    pageToUse = model.PagesCount;
-
-                int startIndex = 10 * (pageToUse - 1);
-                int count = (startIndex + 10 <= items.Count()) ? 10 : (items.Count() - startIndex);
-
-
-                switch (sortOrder)
+                var model = new MarketItemsViewModel()
                 {
-                    case "newest":
-                        items = items.OrderBy(x => x.PublicationDate).ToList();
-                        break;
-                    case "oldest":
-                        items = items.OrderByDescending(x => x.PublicationDate).ToList();
-                        break;
-                    case "name":
-                        items = items.OrderBy(x => x.Title).ToList();
-                        break;
-                    default:
-                        break;
+                    Search = search,
+                    SortOrder = sortOrder,
+                    Category = category,
+                    Status = status
+                };
+
+                if (items?.Count() > 0)
+                {
+                    model.PagesCount = (items.Count() - 1) / 10 + 1;
+
+                    int pageToUse = page != null ? page.Value : 1;
+
+                    if (pageToUse > model.PagesCount)
+                        pageToUse = model.PagesCount;
+
+                    int startIndex = 10 * (pageToUse - 1);
+                    int count = (startIndex + 10 <= items.Count()) ? 10 : (items.Count() - startIndex);
+
+
+                    switch (sortOrder)
+                    {
+                        case "newest":
+                            items = items.OrderByDescending(x => x.Id).ToList();
+                            break;
+                        case "oldest":
+                            items = items.OrderBy(x => x.Id).ToList();
+                            break;
+                        case "name":
+                            items = items.OrderBy(x => x.Title).ToList();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    model.Items = items.ToList().GetRange(startIndex, count);
+                    model.Page = pageToUse;
+                }
+                else
+                {
+                    model.PagesCount = 0;
+                    model.Page = 1;
                 }
 
-                model.Items = items.ToList().GetRange(startIndex, count);
-                model.Page = pageToUse;
+                var categories = await _uow.ItemCategories.GetAll();
+                model.Categories = categories.ToList();
+
+
+                return View(model);
             }
-            else
+            catch
             {
-                model.PagesCount = 0;
-                model.Page = 1;
+                return View("Error");
             }
 
-            var categories = await _uow.ItemCategories.GetAll();
-            model.Categories = categories.ToList();
-
-
-            return View(model);
         }
 
         [HttpGet]
         public async Task<IActionResult> AddOrEditItem(int? id)
         {
-            if(id == null)
+            try
             {
-                var item = new ItemViewModel()
+                if (id == null)
                 {
-                    Categories = new List<int>(),
-                    Images = new List<Image>(),
-                    InspirationItems = new List<InspirationItem>()
-                };
-
-                var categories =  await _uow.ItemCategories.GetAll();
-                item.CategoriesToChoose = categories.Select(x=>new SelectItem() { label = x.Name, value=x.Id, selected=false }).ToList();
-
-                return View(item);
-            }
-            else
-            {
-                var item = await _uow.MarketItems.GetById(id.Value);
-
-                if(item != null)
-                {
-                    var categories = await _uow.ItemCategories.GetAll();
-
-                    return View(new ItemViewModel()
+                    var item = new ItemViewModel()
                     {
-                        Id = id.Value,
-                        CategoriesToChoose = categories.Select(x => new SelectItem()
-                        {
-                            label = x.Name,
-                            value = x.Id,
-                            selected= item.Categories.Contains(x) 
-                        }).ToList(),
-                        Images = item.Images.ToList(),
-                        Description = item.Description,
-                        InspirationItems = item.InspirationItems.ToList(),
-                        Price = item.Price,
-                        Title = item.Title,
-                        Status = item.Status
-                    });
+                        Categories = new List<int>(),
+                        Images = new List<Image>(),
+                        InspirationItems = new List<InspirationItem>()
+                    };
+
+                    var categories = await _uow.ItemCategories.GetAll();
+                    item.CategoriesToChoose = categories.Select(x => new SelectItem() { label = x.Name, value = x.Id, selected = false }).ToList();
+
+                    return View(item);
                 }
-                return NotFound();
+                else
+                {
+                    var item = await _uow.MarketItems.GetById(id.Value);
+
+                    if (item != null)
+                    {
+                        var categories = await _uow.ItemCategories.GetAll();
+
+                        return View(new ItemViewModel()
+                        {
+                            Id = id.Value,
+                            CategoriesToChoose = categories.Select(x => new SelectItem()
+                            {
+                                label = x.Name,
+                                value = x.Id,
+                                selected = item.Categories.Contains(x)
+                            }).ToList(),
+                            Images = item.Images.ToList(),
+                            Description = item.Description,
+                            InspirationItems = item.InspirationItems.ToList(),
+                            Price = item.Price,
+                            Title = item.Title,
+                            Status = item.Status
+                        });
+                    }
+                    return NotFound();
+                }
+            }
+            catch 
+            { 
+                return View("Error");
             }
         }
 
@@ -286,18 +375,24 @@ namespace FleaMarket.Controllers
                             itemToUpdate.Title = item.Title;
                             itemToUpdate.Description = item.Description;
 
-                            if(itemToUpdate.Status != ItemStatus.Published && item.Status == ItemStatus.Published)
+                            if (itemToUpdate.Status != ItemStatus.Published && item.Status == ItemStatus.Published)
                             {
                                 itemToUpdate.PublicationDate = DateTime.Now;
                             }
+                            else if(itemToUpdate.Status == ItemStatus.Published && item.Status == ItemStatus.Unpublished)
+                            {
+                                itemToUpdate.PublicationDate = null;
+                            }
+
+
                             itemToUpdate.Status = item.Status;
 
                             itemToUpdate.Categories = await _uow.ItemCategories.GetByIds(item.Categories);
-                            itemToUpdate.Images =  await _uow.ImageRepository.GetByIds(item.Images?.Select(x => x.Id));
+                            itemToUpdate.Images = await _uow.ImageRepository.GetByIds(item.Images?.Select(x => x.Id));
 
                             await _uow.SaveAsync();
 
-                            TempData["SuccessMessage"] = "Successfully edited market item.";
+                            TempData["SuccessMessage"] = "Uppdateringen av föremålet lyckades.";
 
                             return RedirectToAction("MarketItems");
                         }
@@ -319,18 +414,18 @@ namespace FleaMarket.Controllers
                         var res = await _uow.MarketItems.Create(marketItem);
                         await _uow.SaveAsync();
 
-                        TempData["SuccessMessage"] = "Successfully added market item.";
+                        TempData["SuccessMessage"] = "Skapandet av föremålet lyckades.";
 
                         return RedirectToAction("MarketItems");
                     }
                 }
-                TempData["ErrorMessage"] = "Could not update the item.";
+                TempData["ErrorMessage"] = "Kunde inte uppdatera föremålet.";
 
                 return View(item);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred.";
+                TempData["ErrorMessage"] = "Ett fel uppstod.";
                 return View(item);
             }
 
@@ -349,17 +444,17 @@ namespace FleaMarket.Controllers
                         await _uow.MarketItems.Delete(item);
                         await _uow.SaveAsync();
 
-                        TempData["SuccessMessage"] = "Successfully deleted market item.";
+                        TempData["SuccessMessage"] = "Raderingen av föremålet lyckades.";
 
                         return RedirectToAction("MarketItems");
                     }
                 }
-                TempData["ErrorMessage"] = "Unable to delete market item.";
+                TempData["ErrorMessage"] = "Kunde inte radera föremålet.";
                 return RedirectToAction("MarketItems");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error when deleting market item.";
+                TempData["ErrorMessage"] = "Ett fel uppstod.";
                 return RedirectToAction("MarketItems");
             }
 
@@ -375,7 +470,7 @@ namespace FleaMarket.Controllers
                     var extension = Path.GetExtension(image.FileName).ToUpper();
                     var allowedExtensions = new string[] { ".JPG", ".JPEG", ".PNG", ".HEIC" };
 
-                    if (image.Length < 6*1024*1024 && allowedExtensions.Contains(extension))
+                    if (image.Length < 6 * 1024 * 1024 && allowedExtensions.Contains(extension))
                     {
                         string folder = "images/uploads/";
 
@@ -426,7 +521,7 @@ namespace FleaMarket.Controllers
 
                 return Json(new { Success = false });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { Success = false });
             }
@@ -434,43 +529,27 @@ namespace FleaMarket.Controllers
         [HttpGet]
         public async Task<IActionResult> InspirationItems()
         {
-            var items = await _uow.InspirationItems.GetAll();
+            try
+            {
+                var items = await _uow.InspirationItems.GetAll();
 
-            return View(items);
+                return View(items);
+            }
+            catch (Exception)
+            {
+
+                return View("Error");
+            }
+
         }
         [HttpGet]
         public async Task<IActionResult> AddOrEditInspirationItem(int? id)
         {
-            if(id == null)
+            try
             {
-                InspirationItemViewModel item = new InspirationItemViewModel();
-
-                var marketItem = await _uow.MarketItems.GetAll();
-
-                item.MarketItemOptions = marketItem.Select(x => new MarketItemOptionViewModel()
+                if (id == null)
                 {
-                    Id = x.Id,
-                    Description = x.Description,
-                    Selected = false,
-                    Title = x.Title,
-                    Price = x.Price
-                }).ToList();
-
-                return View(item);
-            }
-            else
-            {
-                var itemToUpdate = await _uow.InspirationItems.GetById(id.Value);
-
-                if(itemToUpdate != null)
-                {
-                    var item = new InspirationItemViewModel();
-
-                    item.Title = itemToUpdate.Title;
-                    item.Description = itemToUpdate.Description;
-                    item.Image = itemToUpdate.Image;
-                    item.Id = itemToUpdate.Id;
-                    item.Status = itemToUpdate.Status;
+                    InspirationItemViewModel item = new InspirationItemViewModel();
 
                     var marketItem = await _uow.MarketItems.GetAll();
 
@@ -478,16 +557,50 @@ namespace FleaMarket.Controllers
                     {
                         Id = x.Id,
                         Description = x.Description,
-                        Selected = itemToUpdate.MarketItems.Contains(x),
+                        Selected = false,
                         Title = x.Title,
                         Price = x.Price
                     }).ToList();
 
                     return View(item);
                 }
-                return NotFound();
+                else
+                {
+                    var itemToUpdate = await _uow.InspirationItems.GetById(id.Value);
 
+                    if (itemToUpdate != null)
+                    {
+                        var item = new InspirationItemViewModel();
+
+                        item.Title = itemToUpdate.Title;
+                        item.Description = itemToUpdate.Description;
+                        item.Image = itemToUpdate.Image;
+                        item.Id = itemToUpdate.Id;
+                        item.Status = itemToUpdate.Status;
+
+                        var marketItem = await _uow.MarketItems.GetAll();
+
+                        item.MarketItemOptions = marketItem.Select(x => new MarketItemOptionViewModel()
+                        {
+                            Id = x.Id,
+                            Description = x.Description,
+                            Selected = itemToUpdate.MarketItems.Contains(x),
+                            Title = x.Title,
+                            Price = x.Price
+                        }).ToList();
+
+                        return View(item);
+                    }
+                    return NotFound();
+
+                }
             }
+            catch (Exception)
+            {
+
+                return View("Error");
+            }
+
         }
         [HttpPost]
         public async Task<IActionResult> AddOrEditInspirationItem(InspirationItemViewModel item)
@@ -502,7 +615,7 @@ namespace FleaMarket.Controllers
 
                         if (itemToUpdate == null)
                         {
-                            TempData["ErrorMessage"] = "Could not find the item.";
+                            TempData["ErrorMessage"] = "Kunde inte hitta föremålet.";
                             return View(item);
                         }
 
@@ -512,25 +625,25 @@ namespace FleaMarket.Controllers
                         itemToUpdate.Status = item.Status;
                         itemToUpdate.MarketItems = await _uow.MarketItems.GetByIds(item.SelectedItems);
 
-                        if(itemToUpdate.Image.Id != item.Image.Id)
+                        if (itemToUpdate.Image.Id != item.Image.Id)
                         {
                             var imageToDelete = itemToUpdate.Image;
                             var isDeleted = await _uow.ImageRepository.Delete(imageToDelete);
-                            if(isDeleted)
+                            if (isDeleted)
                             {
                                 itemToUpdate.Image = await _uow.ImageRepository.GetById(item.Image.Id);
                                 DeleteImage(imageToDelete.Url);
                             }
                             else
                             {
-                                TempData["ErrorMessage"] = "Error when changing image.";
+                                TempData["ErrorMessage"] = "Ett fel uppstod vid ändring av bilden.";
                                 return View(item);
                             }
                         }
 
                         await _uow.SaveAsync();
 
-                        TempData["SuccessMessage"] = "Successfully updated inspiration item.";
+                        TempData["SuccessMessage"] = "Uppdateringen lyckades.";
                         return RedirectToAction("InspirationItems");
                     }
                     else
@@ -547,20 +660,20 @@ namespace FleaMarket.Controllers
                         var createdItem = await _uow.InspirationItems.Create(newItem);
                         await _uow.SaveAsync();
 
-                        TempData["SuccessMessage"] = "Successfully added inspiration item.";
+                        TempData["SuccessMessage"] = "Skapandet av föremålet lyckades.";
 
                         return RedirectToAction("InspirationItems");
                     }
                 }
-                TempData["ErrorMessage"] = "Could not update the item.";
+                TempData["ErrorMessage"] = "Kunde inte uppdatera föremålet.";
                 return View(item);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred.";
+                TempData["ErrorMessage"] = "Ett fel uppstod.";
                 return View(item);
-            }   
-       
+            }
+
         }
 
         [HttpPost]
@@ -576,17 +689,17 @@ namespace FleaMarket.Controllers
                         await _uow.InspirationItems.Delete(item);
                         await _uow.SaveAsync();
 
-                        TempData["SuccessMessage"] = "Successfully deleted inspiration item.";
+                        TempData["SuccessMessage"] = "Raderingen av föremålet lyckades.";
 
                         return RedirectToAction("InspirationItems");
                     }
                 }
-                TempData["ErrorMessage"] = "Unable to delete inspiration item.";
+                TempData["ErrorMessage"] = "Kunde inte radera föremålet.";
                 return RedirectToAction("MarketItems");
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error when deleting inspiration item.";
+                TempData["ErrorMessage"] = "Ett fel uppstod vid raderingen av föremålet.";
                 return RedirectToAction("InspirationItems");
             }
 

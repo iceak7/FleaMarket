@@ -19,10 +19,18 @@ namespace FleaMarket.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var viewModel = new HomeViewModel();
-            viewModel.MarketItems = await _uow.MarketItems.GetLastPublished(5);
+            try
+            {
+                var viewModel = new HomeViewModel();
+                viewModel.MarketItems = await _uow.MarketItems.GetLastPublished(5);
 
-            return View(viewModel);
+                return View(viewModel);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+
         }
 
         public IActionResult Privacy()

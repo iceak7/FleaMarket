@@ -11,34 +11,37 @@ namespace FleaMarket.Controllers
         {
                 _uow = uow;
         }
-        public async Task<IActionResult> Index()
-        {
-            return View();
-        }
 
         [HttpGet]
         public async Task<IActionResult> Create(int? itemId)
         {
-            if (itemId == null)
+            try
             {
-                return NotFound();
-            }
-            else
-            {
-                var marketItem = await _uow.MarketItems.GetById(itemId.Value);
-                if (marketItem == null)
+                if (itemId == null)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    return View(new ItemRequest()
+                    var marketItem = await _uow.MarketItems.GetById(itemId.Value);
+                    if (marketItem == null)
                     {
-                        MarketItem = marketItem
-                    });
+                        return NotFound();
+                    }
+                    else
+                    {
+                        return View(new ItemRequest()
+                        {
+                            MarketItem = marketItem
+                        });
+                    }
                 }
-
             }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+
         }
 
         [HttpPost]
@@ -63,13 +66,13 @@ namespace FleaMarket.Controllers
 
                     }
                 }
-                ViewData["ErrorMessage"] = "There was an error when making the request.";
+                ViewData["ErrorMessage"] = "Ett fel uppstod.";
 
                 return View(request);
             }
             catch (Exception ex)
             {
-                ViewData["ErrorMessage"] = "There was an error when making the request.";
+                ViewData["ErrorMessage"] = "Ett fel uppstod.";
 
                 return View(request);
             }
@@ -82,6 +85,7 @@ namespace FleaMarket.Controllers
         {
             return View();
         }
+
 
     }
 }

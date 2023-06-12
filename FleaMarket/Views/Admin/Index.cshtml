@@ -3,46 +3,117 @@
 <div class="admin-dashboard">
     <div class="row">
 
-        <div class="col-md-6 item-requests-dashboard">
+        <div class="col-lg-6 item-requests-dashboard">
                 <h3>Förfrågningar</h3>
-            @foreach (var item in Model.ItemRequests)
-            {
-                <div class="row item-requests-dashboard-item">
-                    <div class="col-12 item-requests-item-link">
-                        <h4>
-                            <a asp-controller="Market" asp-action="Item" asp-route-id="@item.MarketItem.Id"> @item.MarketItem.Title</a>
-                        </h4>
+                <div class="row">
+                    <form id="item-requests-filter" method="get" asp-controller="Admin" asp-action="" class="col-12 col-md-6">
+                    <div class="">
+                        <label class="form-label" asp-for="Status"></label>
+                        @Html.DropDownListFor(x=>x.Status, Html.GetEnumSelectList(typeof(ItemRequestStatus)), "Alla", new { @class = "form-select", @onchange = "updateRequestsList()" })
                     </div>
-                    <div class="col-md-6 item-requests-dashboard-item-info">
-                        <div class="item-requests-info-tag">
-                            <label>Skapad</label> 
-                            <div>@item.Created.ToString("g")</div>
-                        </div>
-                        <div class="item-requests-info-tag">
-                            <label>Status</label> 
-                            <div>@item.Status</div>
-                        </div>
-                        <div class="item-requests-info-tag">
-                            <label>Namn</label> 
-                            <div>@item.Name</div>
-                        </div>
-                        <div class="item-requests-info-tag">
-                            <label>Email</label> 
-                            <div>@item.Email</div>
-                        </div>
-                        <div class="item-requests-info-tag">
-                            <label>Mobilnummer</label> 
-                            <div>@(item.PhoneNr ?? "-")</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 item-requests-dashboard-item-message">
-                        <label>Meddelande</label>
-                        <div>@item.Message</div>
-                    </div>
+                    </form>
                 </div>
-
+            @if(Model.ItemRequests?.Count() > 0)
+            {
+                @foreach (var item in Model.ItemRequests)
+                {
+                    <div id="item-request-@item.Id" class="row item-requests-dashboard-item mt-3">
+                        <div class="col-12 item-requests-item-link">
+                            <h4>
+                                <a asp-controller="Market" asp-action="Item" asp-route-id="@item.MarketItem.Id"> @item.MarketItem.Title</a>
+                            </h4>
+                        </div>
+                        <div class="col-12">
+                            <div class="item-requests-info-tag">
+                                <label class="item-requests-info-tag-label">Status</label>
+                                <div>
+                                    @foreach (int status in Enum.GetValues(typeof(ItemRequestStatus)))
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input item-request-status-input" onclick="updateRequestStatus(@item.Id, @status)" @((int)item.Status == status ? "checked" : "") type="radio" name="status" id="status-@status" value="@status">
+                                            <label class="form-check-label" for="status-@status">@Enum.GetName(typeof(ItemRequestStatus), status)</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 item-requests-dashboard-item-info">
+                            <div class="item-requests-info-tag">
+                                <label class="item-requests-info-tag-label">Skapad</label>
+                                <div>@item.Created.ToString("g")</div>
+                            </div>
+                            <div class="item-requests-info-tag">
+                                <label class="item-requests-info-tag-label">Namn</label>
+                                <div>@item.Name</div>
+                            </div>
+                            <div class="item-requests-info-tag">
+                                <label class="item-requests-info-tag-label">Email</label>
+                                <div>@item.Email</div>
+                            </div>
+                            <div class="item-requests-info-tag">
+                                <label class="item-requests-info-tag-label">Mobilnummer</label>
+                                <div>@(item.PhoneNr ?? "-")</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 item-requests-dashboard-item-message">
+                            <label class="item-requests-info-tag-label">Meddelande</label>
+                            <div>@item.Message</div>
+                        </div>
+                    </div>
+                }
             }
+            else
+            {
+                <p class="no-item-requests-text">Inga förfrågningar.</p>
+            }
+
+            
         </div>
     </div>
 
 </div>
+
+@section scripts{
+    <script>
+
+            var filterStatus = @(Model.Status == null ? -1 : (int)Model.Status.Value);
+
+            console.log( "filterStatus: " + filterStatus);
+
+
+
+        function updateRequestStatus(id, status){
+            var formData = new FormData();
+            formData.append('status', status);
+
+            $.ajax({
+                method: "post",
+                url: "/Admin/UpdateRequestStatus/" + id,
+                data: formData,
+                processData: false,
+                contentType: false,
+                cache: false,
+                success: function (data) {
+                    console.log("status: " + status)
+
+                    if(data.success==false){
+                        insertErrorMessage("Fel vid uppdatering av statusen.")
+                    }
+                    else if(data.success == true && ( filterStatus != status && filterStatus != -1)){
+                        $("#item-request-"+id).hide("slow", function(){
+                            $(this).remove();
+                        })
+                    }
+                },
+                error: function (data) {
+                    insertErrorMessage("Fel vid uppdatering av statusen.")
+                }
+            });
+        }
+
+        function updateRequestsList(){
+            $("#item-requests-filter").submit();
+        }
+    </script>
+
+}

@@ -12,20 +12,37 @@ namespace FleaMarket.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var items = await _uow.InspirationItems.GetPublishedItems();
+            try
+            {
+                var items = await _uow.InspirationItems.GetPublishedItems();
 
-            return View(items);
+                return View(items);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+
         }
 
         public async Task<IActionResult> Item(int? id)
         {
-            if(id == null)
+            try
             {
-                return NotFound();
+                if (id == null)
+                {
+                    return NotFound();
+                }
+
+                var item = await _uow.InspirationItems.GetById(id.Value);
+                return View(item);
+            }
+            catch (Exception)
+            {
+
+                return View("Error");
             }
 
-            var item = await _uow.InspirationItems.GetById(id.Value);
-             return View(item);
         }
     }
 }
