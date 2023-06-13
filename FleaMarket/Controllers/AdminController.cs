@@ -15,10 +15,12 @@ namespace FleaMarket.Controllers
     {
         private readonly IUnitOfWork _uow;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public AdminController(IUnitOfWork uow, IWebHostEnvironment webHostEnvironment)
+        private readonly ILogger<AdminController> _logger;
+        public AdminController(IUnitOfWork uow, IWebHostEnvironment webHostEnvironment, ILogger<AdminController> logger)
         {
             _uow = uow;
             _webHostEnvironment = webHostEnvironment;
+            _logger = logger;
         }
 
         //Dashboard
@@ -491,7 +493,8 @@ namespace FleaMarket.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult(new { Success = false });
+                _logger.LogError(ex, "Could not upload image.");
+                return new JsonResult(new { Success = false, Message="There was an error" });
             }
 
         }

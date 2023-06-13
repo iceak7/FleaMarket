@@ -2,9 +2,9 @@ using FleaMarket.Infrastructure;
 using FleaMarket.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Localization;
 using FleaMarket.Infrastructure.Services;
+using Microsoft.Extensions.Logging.AzureAppServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +35,13 @@ builder.Services.AddScoped<IGoogleService, GoogleService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddControllersWithViews();
+
+builder.Logging.AddAzureWebAppDiagnostics();
+
+builder.Services.Configure<AzureBlobLoggerOptions>(options =>
+{
+    options.BlobName = "log.txt";
+});
 
 var app = builder.Build();
 
