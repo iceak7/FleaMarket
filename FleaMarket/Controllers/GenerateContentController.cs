@@ -10,13 +10,11 @@ namespace FleaMarket.Controllers
     public class GenerateContentController : Controller
     {
         private readonly IOpenApiService _openApiService;
-        private readonly IGoogleService _googleService;
         private readonly IUnitOfWork _unitOfWork;
-        public GenerateContentController(IOpenApiService openApiService, IUnitOfWork unitOfWork, IGoogleService googleService)
+        public GenerateContentController(IOpenApiService openApiService, IUnitOfWork unitOfWork)
         {
             _openApiService = openApiService;
             _unitOfWork = unitOfWork;
-            _googleService = googleService;
         }
 
         [HttpPost]
@@ -24,7 +22,7 @@ namespace FleaMarket.Controllers
         {
             try
             {
-                var res = await _googleService.TranslateToEn(text);
+                var res = await _openApiService.TranslateToEn(text);
 
                 if(!string.IsNullOrWhiteSpace(res))
                 {
