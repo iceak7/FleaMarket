@@ -465,7 +465,7 @@ namespace FleaMarket.Controllers
         [HttpPost]
         public async Task<JsonResult> AddImage(IFormFile image)
         {
-            _logger.LogInformation("Adding image", new { fileName = image.FileName });
+            _logger.LogInformation($"Adding image with filename '{image.FileName}'." );
 
             try
             {
@@ -715,11 +715,11 @@ namespace FleaMarket.Controllers
             
             folderPath += Guid.NewGuid().ToString() + "_" + file.FileName;
 
-            _logger.LogInformation("Trying to upload image", new { folderPath, webRootPath = _webHostEnvironment.WebRootPath });
+            _logger.LogInformation($"Trying to upload image with folderpath '{folderPath}' and webRootPath '{_webHostEnvironment.WebRootPath}'.");
 
             string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folderPath);
 
-            _logger.LogInformation("Serverfolder combined", new { serverFolder });
+            _logger.LogInformation($"Serverfolder combined: '{serverFolder}'.");
 
             using var filestream = new FileStream(serverFolder, FileMode.Create);
             await file.CopyToAsync(filestream);
