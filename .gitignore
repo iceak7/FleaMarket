@@ -362,4 +362,3 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /FleaMarket/Migrations
-/FleaMarket/wwwroot/images/uploads
