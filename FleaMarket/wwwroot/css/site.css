@@ -46,6 +46,10 @@ body {
     font-size: 1.65rem;
 }
 
+.nav-item:hover{
+    text-decoration:underline;
+}
+
 
 .form-floating {
     margin-bottom: 5px;
@@ -77,10 +81,10 @@ a {
     color: black;
 }
 
-    a:hover {
+/*    a:hover {
         text-decoration: underline;
         color: gray;
-    }
+    }*/
 
 
 /*/ SCROLL BAR /*/
@@ -804,6 +808,7 @@ footer {
 }
 .market-item-display-description{
     margin-bottom:10px;
+    white-space:pre-line;
 }
 
 .market-item-image-gallery {
